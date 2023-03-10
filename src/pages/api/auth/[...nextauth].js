@@ -11,7 +11,11 @@ export default NextAuth({
         LinkedIn({
             clientId: process.env.LINKEDIN_ID,
             clientSecret: process.env.LINKEDIN_SECRET,
-            scope: "r_liteprofile,r_emailaddress,w_member_social",
+            authorization: {
+                params: {
+                    scope: 'r_liteprofile r_emailaddress w_member_social',
+                },
+            },
         }),
     ],
     callbacks: {
