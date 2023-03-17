@@ -41,6 +41,7 @@ async function handler(_req: NextApiRequest, res: NextApiResponse) {
 /**
  * Wrap your handler with `verifySignature` to automatically reject all
  * requests that are not coming from Upstash.
+ * test
  */
 export default verifySignature(handler);
 
