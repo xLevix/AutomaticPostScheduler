@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { Redis } from "@upstash/redis";
-// @ts-ignore
 import { verifySignature } from "@upstash/qstash/nextjs";
 
 async function handler(_req: NextApiRequest, res: NextApiResponse) {
