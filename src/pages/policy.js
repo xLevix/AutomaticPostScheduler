@@ -1,6 +1,4 @@
-// eslint-disable-next-line @next/next/no-document-import-in-page
-import { Html, Head, Main, NextScript } from 'next/document'
-
+import { Head } from 'next/head'
 
 const content = "<h1>Privacy Policy of Social Media Post Scheduler</h1>\n" +
     "\n" +
