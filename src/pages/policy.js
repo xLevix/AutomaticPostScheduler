@@ -1,4 +1,3 @@
-import { Head } from 'next/head'
 
 const content = "<h1>Privacy Policy of Social Media Post Scheduler</h1>\n" +
     "\n" +
@@ -57,16 +56,11 @@ const content = "<h1>Privacy Policy of Social Media Post Scheduler</h1>\n" +
     "\n" +
     "<h2>Contact Us</h2>\n" +
     "\n" +
-    "<p>If you have any questions or suggestions about our Privacy Policy, do not hesitate to contact us.</p>"
+    "<p>If you have any questions or suggestions about our Privacy Policy, do not hesitate to contact us.</p>";
 
-export default function Policy() {
+export default function Privacy() {
     return (
         <div className="container">
-            <Head>
-                <title>Privacy Policy</title>
-                <link rel="icon" href="/favicon.ico"/>
-            </Head>
-
             <main>
                 <div className="content">
                     <div className="content__inner">
@@ -78,4 +72,4 @@ export default function Policy() {
             </main>
         </div>
     )
-   }
+}
