@@ -1,4 +1,4 @@
-const content = "If you wish to delete your data, please email me at xxleviiplxx@gmail.com ";
+const content = "<h1>Request User Data Deletion</h1><p>If you would like to delete your data, please send an email to xxleviiplxx@gmail.com from the email you used to log in.</p>";
 
 export default function Shredder() {
     return (
