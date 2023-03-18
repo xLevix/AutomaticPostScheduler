@@ -1,13 +1,9 @@
 import NextAuth from "next-auth"
-import GithubProvider from "next-auth/providers/github"
 import LinkedIn from "next-auth/providers/linkedin";
+import FacebookProvider from "next-auth/providers/facebook";
 
 export default NextAuth({
     providers: [
-        GithubProvider({
-            clientId: process.env.GITHUB_ID,
-            clientSecret: process.env.GITHUB_SECRET,
-        }),
         LinkedIn({
             clientId: process.env.LINKEDIN_ID,
             clientSecret: process.env.LINKEDIN_SECRET,
@@ -16,6 +12,10 @@ export default NextAuth({
                     scope: 'r_liteprofile r_emailaddress w_member_social',
                 },
             },
+        }),
+        FacebookProvider({
+            clientId: process.env.FACEBOOK_CLIENT_ID,
+            clientSecret: process.env.FACEBOOK_CLIENT_SECRET
         }),
     ],
     callbacks: {
