@@ -80,10 +80,10 @@ export default function Home() {
                     <br />
                     <textarea rows={5} cols={50} value={text} onChange={(e) => setText(e.target.value)} />
                 </label>
-                <br />
+                <br />  <br />
                 Wygenerowany tekst: <br />
                 <textarea rows={10} cols={70} value={result} onChange={(e) => setResult(e.target.value)} />
-                <br />
+                <br />  <br />
                 Czas za jaki wiadomość ma zostać wysłana: <br />
                 <input type={"number"} min={0} max={30} placeholder={"time"} onChange={(e)=>setTime(e.target.value)}/>
                 <br />
