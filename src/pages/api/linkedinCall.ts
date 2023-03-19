@@ -1,21 +1,13 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import nc from 'next-connect';
-import axios from "axios";
 
 const handler = nc<NextApiRequest, NextApiResponse>()
     .post((req, res) => {
         const { accessToken, text } = req.body; // pobieranie danych z ciała żądania
 
-        // tutaj można wykonać jakieś operacje na danych, np. zapisać w bazie danych
-        const headers = {
-            ContentType: 'application/json',
-            LinkedInVersion: '202301',
-            XRestliProtocolVersion: '2.0.0',
-            Authorization: `Bearer ${accessToken}`
-        }
-
-        const data = {
-            "author": "urn:li:person:eJiIx5Mbul",
+        var axios = require('axios');
+        var data = JSON.stringify({
+            "author": "urn:li:person:tIoUKxaNxH",
             "commentary": `${text}`,
             "visibility": "PUBLIC",
             "distribution": {
@@ -25,20 +17,31 @@ const handler = nc<NextApiRequest, NextApiResponse>()
             },
             "lifecycleState": "PUBLISHED",
             "isReshareDisabledByAuthor": false
-        }
+        });
 
-        // wysyłanie odpowiedzi z potwierdzeniem otrzymania danych
-        console.log(accessToken, text)
-        axios.post('https://api.linkedin.com/rest/posts', data, { headers: headers})
+        var config = {
+            method: 'post',
+            maxBodyLength: Infinity,
+            url: 'https://api.linkedin.com/rest/posts',
+            headers: {
+                'X-Restli-Protocol-Version': '2.0.0',
+                'Content-Type': 'application/json',
+                'LinkedIn-Version': '202301',
+                'Authorization': `Bearer ${accessToken}`,
+            },
+            data : data
+        };
+
+        axios(config)
             .then(function (response) {
-                console.log(response);
-                res.status(200).json({ message: 'success' })
-            } )
+                console.log(JSON.stringify(response.data));
+                res.status(200).json({ message: 'Post created' });
+            })
             .catch(function (error) {
                 console.log(error);
-                res.status(500).json({ message: 'error' })
-            }
-        );
+                res.status(500).json({ message: 'Post not created' });
+            });
+
     });
 
 export default handler;
