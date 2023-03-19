@@ -16,7 +16,8 @@ export default function Home() {
                 'Authorization': 'Bearer ' + process.env.QSTASH_TOKEN
             }
         });
-        await response.json();
+        const data = await response.json();
+        setResult(data);
     };
 
     return (
