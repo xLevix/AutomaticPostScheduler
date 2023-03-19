@@ -15,11 +15,11 @@ const handler = nc<NextApiRequest, NextApiResponse>()
                 'Content-Type': 'application/json',
                 'LinkedIn-Version': '202301',
                 'X-Restli-Protocol-Version': '2.0.0',
-                'Authorization': `Bearer ` + accessToken
+                'Authorization': `Bearer ${accessToken}`
             },
             data: {
                 "author": "urn:li:person:eJiIx5Mbul",
-                "commentary": text,
+                "commentary": `${text}`,
                 "visibility": "PUBLIC",
                 "distribution": {
                     "feedDistribution": "MAIN_FEED",
@@ -34,6 +34,11 @@ const handler = nc<NextApiRequest, NextApiResponse>()
                 console.log(response);
                 res.status(200).json({ message: 'success' })
             } )
+            .catch(function (error) {
+                console.log(error);
+                res.status(500).json({ message: 'error' })
+            }
+        );
     });
 
 export default handler;
