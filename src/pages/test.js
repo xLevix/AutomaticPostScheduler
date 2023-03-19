@@ -30,6 +30,9 @@ export default function Home() {
         .then(function (response) {
             console.log(JSON.stringify(response.data));
             response.status === 200 ? alert("Wiadomość wysłana!") : alert("Coś poszło nie tak :(");
+            setText('');
+            setResult('');
+            setTime(0)
         })
 
         .catch(function (error) {
@@ -83,7 +86,7 @@ export default function Home() {
                 <br />  <br />
                 Wygenerowany tekst: <br />
                 <textarea rows={10} cols={70} value={result} onChange={(e) => setResult(e.target.value)} />
-                <br />  <br />
+                <br />
                 Czas za jaki wiadomość ma zostać wysłana: <br />
                 <input type={"number"} min={0} max={30} placeholder={"time"} onChange={(e)=>setTime(e.target.value)}/>
                 <br />
