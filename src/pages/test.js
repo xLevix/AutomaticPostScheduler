@@ -1,8 +1,11 @@
 import { useState } from 'react';
+import {useSession} from "next-auth/react";
 export default function Home() {
-    const [accessToken, setAccessToken] = useState('');
     const [text, setText] = useState('');
     const [result, setResult] = useState('');
+    const { data: session} = useSession();
+
+    var accessToken = session?.user.accessToken;
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -15,19 +18,13 @@ export default function Home() {
                 'Authorization': 'Bearer eyJVc2VySUQiOiJjYThjYTZlZi0yYTFhLTQwMDAtOTVlZi1jYTM2NWZiOWYyMmQiLCJQYXNzd29yZCI6ImU1MTdjYWE0ZWUzOTQ0OTVhN2NkYzViMzBhZTAwNGU5In0='
             }
         });
-        const data = await response.json();
-        setResult(`Thank you, ${data.name} (${data.email})!`);
+        await response.json();
     };
 
     return (
         <div>
             <h1>Send a message</h1>
             <form onSubmit={handleSubmit}>
-                <label>
-                    AccessToken
-                    <input type="text" value={accessToken} onChange={(e) => setAccessToken(e.target.value)} />
-                </label>
-                <br />
                 <label>
                     Text:
                     <input type="text" value={text} onChange={(e) => setText(e.target.value)} />
