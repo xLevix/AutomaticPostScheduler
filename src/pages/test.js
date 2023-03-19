@@ -12,7 +12,7 @@ export default function Home() {
         var axios = require('axios');
         var data = JSON.stringify({
             accessToken: session?.user.accessToken,
-            text: text,
+            text: result,
             userId: session?.user.id,
             delay: time
         });
@@ -82,7 +82,7 @@ export default function Home() {
                 </label>
                 <br />
                 Wygenerowany tekst: <br />
-                <textarea rows={10} cols={70} value={result} onChange={(e) => setText(e.target.value)} />
+                <textarea rows={10} cols={70} value={result} onChange={(e) => setResult(e.target.value)} />
                 <br />
                 Czas za jaki wiadomość ma zostać wysłana: <br />
                 <input type={"number"} min={0} max={30} placeholder={"time"} onChange={(e)=>setTime(e.target.value)}/>
