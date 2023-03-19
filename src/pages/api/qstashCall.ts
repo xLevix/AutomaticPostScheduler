@@ -3,7 +3,7 @@ import nc from 'next-connect';
 
 const handler = nc<NextApiRequest, NextApiResponse>()
     .post((req, res) => {
-        const { accessToken, text, userId } = req.body; // pobieranie danych z ciała żądania
+        const { accessToken, text, userId, delay } = req.body; // pobieranie danych z ciała żądania
 
         var axios = require('axios');
         var data = JSON.stringify({
@@ -18,7 +18,7 @@ const handler = nc<NextApiRequest, NextApiResponse>()
             url: 'https://qstash.upstash.io/v1/publish/https://automatic-post-scheduler.vercel.app/api/linkedinCall',
             headers: {
                 'Content-Type': 'application/json',
-                'Upstash-Delay': '1m',
+                'Upstash-Delay': `${delay}m`,
                 'Authorization': `Bearer ${process.env.QSTASH_TOKEN}`
             },
             data : data
