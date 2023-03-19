@@ -7,17 +7,33 @@ export default function Home() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const response = await fetch('https://qstash.upstash.io/v1/publish/https://automatic-post-scheduler.vercel.app/api/linkedinCall', {
-            method: 'POST',
-            body: JSON.stringify({ accessToken: session?.user.accessToken, text, userId: session?.user.id }),
-            headers: {
-                'Content-Type': 'application/json',
-                'Upstash-Delay': '1m',
-                'Authorization': 'Bearer ' + process.env.QSTASH_TOKEN
-            }
+        //make axios post for /api/qstashCall
+        var axios = require('axios');
+        var data = JSON.stringify({
+            accessToken: session?.user.accessToken,
+            text: text,
+            userId: session?.user.id
         });
-        const data = await response.json();
-        setResult(data);
+
+        var config = {
+            method: 'post',
+            url: 'api/qstashCall',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            data : data
+        };
+
+        axios(config)
+        .then(function (response) {
+            console.log(JSON.stringify(response.data));
+            setResult(JSON.stringify(response.data));
+        })
+
+        .catch(function (error) {
+            console.log(error);
+        });
+
     };
 
     return (
