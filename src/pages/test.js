@@ -1,17 +1,18 @@
 import { useState } from 'react';
-
 export default function Home() {
-    const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
+    const [accessToken, setAccessToken] = useState('');
+    const [text, setText] = useState('');
     const [result, setResult] = useState('');
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const response = await fetch('/api/form', {
+        const response = await fetch('https://qstash.upstash.io/v1/publish/https://automatic-post-scheduler.vercel.app/api/linkedinCall', {
             method: 'POST',
-            body: JSON.stringify({ name, email }),
+            body: JSON.stringify({ accessToken, text }),
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Upstash-Delay': '3m',
+                'Authorization': 'Bearer eyJVc2VySUQiOiJjYThjYTZlZi0yYTFhLTQwMDAtOTVlZi1jYTM2NWZiOWYyMmQiLCJQYXNzd29yZCI6ImU1MTdjYWE0ZWUzOTQ0OTVhN2NkYzViMzBhZTAwNGU5In0='
             }
         });
         const data = await response.json();
@@ -23,13 +24,13 @@ export default function Home() {
             <h1>Send a message</h1>
             <form onSubmit={handleSubmit}>
                 <label>
-                    Name:
-                    <input type="text" value={name} onChange={(e) => setName(e.target.value)} />
+                    AccessToken
+                    <input type="text" value={accessToken} onChange={(e) => setAccessToken(e.target.value)} />
                 </label>
                 <br />
                 <label>
-                    Email:
-                    <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                    Text:
+                    <input type="text" value={text} onChange={(e) => setText(e.target.value)} />
                 </label>
                 <br />
                 <button type="submit">Send</button>
