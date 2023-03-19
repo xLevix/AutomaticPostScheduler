@@ -13,7 +13,7 @@ export default function Home() {
             headers: {
                 'Content-Type': 'application/json',
                 'Upstash-Delay': '1m',
-                'Authorization': 'Bearer eyJVc2VySUQiOiJjYThjYTZlZi0yYTFhLTQwMDAtOTVlZi1jYTM2NWZiOWYyMmQiLCJQYXNzd29yZCI6ImU1MTdjYWE0ZWUzOTQ0OTVhN2NkYzViMzBhZTAwNGU5In0='
+                'Authorization': `Bearer ${process.env.QSTASH_TOKEN}`
             }
         });
         await response.json();
