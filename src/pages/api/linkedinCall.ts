@@ -3,11 +3,11 @@ import nc from 'next-connect';
 
 const handler = nc<NextApiRequest, NextApiResponse>()
     .post((req, res) => {
-        const { accessToken, text } = req.body; // pobieranie danych z ciała żądania
+        const { accessToken, text, userId } = req.body; // pobieranie danych z ciała żądania
 
         var axios = require('axios');
         var data = JSON.stringify({
-            "author": "urn:li:person:tIoUKxaNxH",
+            "author": `urn:li:person:${userId}`,
             "commentary": `${text}`,
             "visibility": "PUBLIC",
             "distribution": {

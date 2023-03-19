@@ -5,13 +5,11 @@ export default function Home() {
     const [result, setResult] = useState('');
     const { data: session} = useSession();
 
-    var accessToken = session?.user.accessToken;
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         const response = await fetch('https://qstash.upstash.io/v1/publish/https://automatic-post-scheduler.vercel.app/api/linkedinCall', {
             method: 'POST',
-            body: JSON.stringify({ accessToken, text }),
+            body: JSON.stringify({ accessToken: session?.user.accessToken, text, userId: session?.user.id }),
             headers: {
                 'Content-Type': 'application/json',
                 'Upstash-Delay': '1m',
