@@ -8,18 +8,18 @@ const handler = nc<NextApiRequest, NextApiResponse>()
 
         // tutaj można wykonać jakieś operacje na danych, np. zapisać w bazie danych
 
-        res.status(200); // wysyłanie odpowiedzi z potwierdzeniem otrzymania danych
+        // wysyłanie odpowiedzi z potwierdzeniem otrzymania danych
         console.log(accessToken, text)
         axios.post('https://api.linkedin.com/rest/posts', {
             headers: {
                 'Content-Type': 'application/json',
                 'LinkedIn-Version': '202301',
                 'X-Restli-Protocol-Version': '2.0.0',
-                'Authorization': `Bearer ${accessToken}`
+                'Authorization': `Bearer ` + accessToken
             },
             data: {
                 "author": "urn:li:person:eJiIx5Mbul",
-                "commentary": `${text}`,
+                "commentary": text,
                 "visibility": "PUBLIC",
                 "distribution": {
                     "feedDistribution": "MAIN_FEED",
@@ -30,6 +30,10 @@ const handler = nc<NextApiRequest, NextApiResponse>()
                 "isReshareDisabledByAuthor": false
             }
         })
+            .then(function (response) {
+                console.log(response);
+                res.status(200).json({ message: 'success' })
+            } )
     });
 
 export default handler;

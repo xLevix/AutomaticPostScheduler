@@ -14,7 +14,7 @@ export default function Home() {
             body: JSON.stringify({ accessToken, text }),
             headers: {
                 'Content-Type': 'application/json',
-                'Upstash-Delay': '3m',
+                'Upstash-Delay': '1m',
                 'Authorization': 'Bearer eyJVc2VySUQiOiJjYThjYTZlZi0yYTFhLTQwMDAtOTVlZi1jYTM2NWZiOWYyMmQiLCJQYXNzd29yZCI6ImU1MTdjYWE0ZWUzOTQ0OTVhN2NkYzViMzBhZTAwNGU5In0='
             }
         });
