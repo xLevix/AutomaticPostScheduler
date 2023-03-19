@@ -1,4 +1,4 @@
-const content = "<p><a href='overview.js'>Logowanie</a></p><p><a href='form.js'>Formularz Linkedin</a> </p>"
+const content = "<p><a href='overview'>Logowanie</a></p><p><a href='form'>Formularz Linkedin</a> </p>"
 
 export default function Main() {
     return (
