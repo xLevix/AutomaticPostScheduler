@@ -14,7 +14,9 @@ const handler = nc<NextApiRequest, NextApiResponse>()
                     "role": "user",
                     "content": `${prompt}`
                 }
-            ]
+            ],
+            "max_tokens": 100,
+            "temperature": 0.9,
         });
 
         let config = {
