@@ -26,6 +26,7 @@ export default function CamperVanPage() {
             <button onClick={() => signIn("linkedin")}>Linkedin Sign in</button>
             <button onClick={() => signIn("facebook")}>Facebook Sign in</button>
             <button onClick={() => signIn("credentials")}>Instagram Sign in</button>
+            <button onClick={() => signIn("twitter")}>Twitter Sign in</button>
         </>
     )
 }

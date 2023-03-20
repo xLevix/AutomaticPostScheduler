@@ -4,6 +4,7 @@ import FacebookProvider from "next-auth/providers/facebook";
 import CredentialsProvider from "next-auth/providers/credentials";
 import axios from "axios";
 import { useSession } from "next-auth/react"
+import TwitterProvider from "next-auth/providers/twitter";
 
 
 export default NextAuth({
@@ -26,6 +27,12 @@ export default NextAuth({
                 },
             },
 
+        }),
+
+        TwitterProvider({
+            clientId: process.env.TWITTER_ID,
+            clientSecret: process.env.TWITTER_SECRET,
+            version: "2.0", // opt-in to Twitter OAuth 2.0
         }),
 
         CredentialsProvider({
@@ -57,18 +64,11 @@ export default NextAuth({
                 };
 
                 axios.request(config)
-                    .then((response) => {
-                        if (response.data.message === "success") {
-                            console.log("response", response.data);
-                            const { data: session, status } = useSession()
-                            session.user.instagram.id = credentials.username;
-                            session.user.instagram.password = credentials.password;
-                            return session;
-                        } else {
-                            return null;
-                        }
+                    .then(function (response) {
+                        console.log(JSON.stringify(response.data));
+                        return response.data;
                     })
-                    .catch((error) => {
+                    .catch(function (error) {
                         console.log(error);
                     });
             }
