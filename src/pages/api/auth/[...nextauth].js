@@ -59,6 +59,7 @@ export default NextAuth({
                 axios.request(config)
                     .then((response) => {
                         if (response.data.message === "success") {
+                            console.log("response", response.data);
                             const { data: session, status } = useSession()
                             session.user.instagram.id = credentials.username;
                             session.user.instagram.password = credentials.password;
