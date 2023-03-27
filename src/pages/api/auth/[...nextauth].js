@@ -2,11 +2,8 @@ import NextAuth from "next-auth"
 import LinkedIn from "next-auth/providers/linkedin";
 import FacebookProvider from "next-auth/providers/facebook";
 import CredentialsProvider from "next-auth/providers/credentials";
-import axios from "axios";
-import { useSession } from "next-auth/react"
 import TwitterProvider from "next-auth/providers/twitter";
 import {IgApiClient} from "instagram-private-api";
-import {log} from "util";
 
 
 export default NextAuth({
@@ -53,13 +50,10 @@ export default NextAuth({
                 ig.state.generateDevice(credentials.username);
                 const auth = await ig.account.login(credentials.username, credentials.password);
 
-                if (JSON.stringify(auth)){
-                    var user ={
-                        username: credentials.username,
-                        password: credentials.password,
-                    }
-                    return user;
-                }
+                return {
+                    username: credentials.username,
+                    password: credentials.password,
+                };
             }
         }),
     ],
@@ -68,9 +62,13 @@ export default NextAuth({
             if (account?.accessToken) {
                 token.accessToken = account.access_token;
             }
+
+            if(user?.username){
+                token.sub = user.username;
+                token.accessToken = user.password;
+            }
+
             console.log("user", user);
-            console.log("account", account);
-            console.log("token", token);
             return token;
         },
         async session({ session, token, }) {
