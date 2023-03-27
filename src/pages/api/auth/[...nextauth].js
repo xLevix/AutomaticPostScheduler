@@ -54,7 +54,11 @@ export default NextAuth({
                 const auth = await ig.account.login(credentials.username, credentials.password);
 
                 if (JSON.stringify(auth)){
-                    return {sub: credentials.username, accessToken: credentials.password}
+                    var user ={
+                        username: credentials.username,
+                        password: credentials.password,
+                    }
+                    return user;
                 }
             }
         }),
@@ -62,7 +66,9 @@ export default NextAuth({
     callbacks: {
         async jwt({ token, user, account }) {
             if (account?.accessToken) {
-                token.accessToken = account.access_token;
+                // token.accessToken = account.access_token;
+                token.accessToken = user.password;
+                token.sub = user.username;
             }
             console.log("token", token);
             return token;
