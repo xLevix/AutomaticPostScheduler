@@ -5,6 +5,8 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import axios from "axios";
 import { useSession } from "next-auth/react"
 import TwitterProvider from "next-auth/providers/twitter";
+import {IgApiClient} from "instagram-private-api";
+import {log} from "util";
 
 
 export default NextAuth({
@@ -36,7 +38,7 @@ export default NextAuth({
 
         CredentialsProvider({
             // The name to display on the sign in form (e.g. "Sign in with...")
-            name: "Instagram Login",
+            name: "insta",
             // `credentials` is used to generate a form on the sign in page.
             // You can specify which fields should be submitted, by adding keys to the `credentials` object.
             // e.g. domain, username, password, 2FA token, etc.
@@ -45,37 +47,21 @@ export default NextAuth({
                 username: { label: "Username", type: "text", placeholder: "login", id: "username", name: "username" },
                 password: { label: "Password", type: "password", id: "password", name: "password" }
             },
-            async authorize(credentials, req) {
-                const axios = require('axios');
-                let data = JSON.stringify({
-                    username: credentials.username,
-                    password: credentials.password
-                });
+            async authorize(credentials, req, res) {
 
-                let config = {
-                    method: 'post',
-                    maxBodyLength: Infinity,
-                    url: 'api/instaLogin',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    data : data
-                };
+                const ig = new IgApiClient();
+                ig.state.generateDevice(credentials.username);
+                const auth = await ig.account.login(credentials.username, credentials.password);
 
-                axios.request(config)
-                    .then(function (response) {
-                        console.log(JSON.stringify(response.data));
-                        return response.data;
-                    })
-                    .catch(function (error) {
-                        console.log(error);
-                    });
+                if (JSON.stringify(auth)){
+                    return {sub: credentials.username, accessToken: credentials.password}
+                }
             }
         }),
     ],
     callbacks: {
         async jwt({ token, user, account }) {
-            if (account) {
+            if (account?.accessToken) {
                 token.accessToken = account.access_token;
             }
             console.log("token", token);
@@ -83,8 +69,10 @@ export default NextAuth({
         },
         async session({ session, token, }) {
             if (session?.user) {
-                session.user.id = token.sub;
-                session.user.accessToken = token.accessToken;
+                if (token?.accessToken){
+                    session.user.id = token.sub;
+                    session.user.accessToken = token.accessToken;
+                }
             }
             return {
                 ...session,
