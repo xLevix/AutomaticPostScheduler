@@ -24,7 +24,11 @@ const handler = nc<NextApiRequest, NextApiResponse>()
                 caption: desc,
             });
 
-            console.log(publishResult);
+            if (JSON.stringify(publishResult)) {
+                res.status(200).json(JSON.stringify(publishResult));
+            } else {
+                res.status(500).json("Failed to publish");
+            }
         }
 
     });

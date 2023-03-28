@@ -50,16 +50,20 @@ export default NextAuth({
                 ig.state.generateDevice(credentials.username);
                 const auth = await ig.account.login(credentials.username, credentials.password);
 
-                return {
-                    username: credentials.username,
-                    password: credentials.password,
-                };
+                if (JSON.stringify(auth)) {
+                    return {
+                        username: credentials.username,
+                        password: credentials.password,
+                    };
+                } else {
+                    return null;
+                }
             }
         }),
     ],
     callbacks: {
         async jwt({ token, user, account }) {
-            if (account?.accessToken) {
+            if (account) {
                 token.accessToken = account.access_token;
             }
 
@@ -68,15 +72,15 @@ export default NextAuth({
                 token.accessToken = user.password;
             }
 
+            console.log("account", account)
             console.log("user", user);
+            console.log("token", token)
             return token;
         },
         async session({ session, token, }) {
             if (session?.user) {
-                if (token?.accessToken){
-                    session.user.id = token.sub;
-                    session.user.accessToken = token.accessToken;
-                }
+                session.user.id = token.sub;
+                session.user.accessToken = token.accessToken;
             }
             return {
                 ...session,

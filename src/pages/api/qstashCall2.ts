@@ -7,11 +7,10 @@ const handler = nc<NextApiRequest, NextApiResponse>()
 
         var axios = require('axios');
         var data = JSON.stringify({
-            delay: delay,
-            img: img,
             username: username,
             password: password,
-            desc: desc
+            desc: desc,
+            img: img
         });
 
         var config = {

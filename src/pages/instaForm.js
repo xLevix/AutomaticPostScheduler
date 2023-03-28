@@ -6,7 +6,7 @@ export default function Home() {
     const [result, setResult] = useState('');
     const { data: session} = useSession();
     const [time, setTime] = useState(0);
-    const {image, setImage} = useState('');
+    const [image, setImage] = useState('');
 
     const handleSubmit = async (e) => {        e.preventDefault();
         var axios = require('axios');
@@ -17,6 +17,16 @@ export default function Home() {
             img: image,
             delay: time
         });
+
+        console.log(session?.user.id);
+        console.log("\n")
+        console.log(session?.user.accessToken);
+        console.log("\n")
+        console.log(session?.user);
+        console.log("\n")
+        console.log(session);
+        console.log("\n")
+        console.log(image);
 
         var config = {
             method: 'post',
