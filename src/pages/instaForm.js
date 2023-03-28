@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import {useSession} from "next-auth/react";
-import {AWSUpload} from "./photo-upload";
 
 export default function Home() {
     const [text, setText] = useState('');
@@ -89,7 +88,12 @@ export default function Home() {
                 Wygenerowany tekst: <br />
                 <textarea rows={10} cols={70} value={result} onChange={(e) => setResult(e.target.value)} />
                 <br /> <br />
-                {AWSUpload},
+                <p>Upload a .png or .jpg image (max 1MB).</p>
+                <input
+                    onChange={uploadPhoto}
+                    type="file"
+                    accept="image/png, image/jpeg"
+                />
                 <br /> <br />
                 Czas za jaki wiadomość ma zostać wysłana: <br />
                 <input type={"number"} min={0} max={30} placeholder={"time"} onChange={(e)=>setTime(e.target.value)}/>
@@ -98,4 +102,35 @@ export default function Home() {
             </form>
         </div>
     );
+}
+
+
+const uploadPhoto = async (e) => {
+    const file = e.target.files?.[0];
+    const filename = encodeURIComponent(file.name)
+    const fileType = encodeURIComponent(file.type)
+
+    const res = await fetch(
+        `/api/upload-url?file=${filename}&fileType=${fileType}`
+    )
+    const {url, fields} = await res.json()
+    const formData = new FormData()
+
+    Object.entries({...fields, file}).forEach(([key, value]) => {
+        formData.append(key, value)
+    })
+
+    const upload = await fetch(url, {
+        method: 'POST',
+        body: formData,
+    })
+
+    if (upload.ok) {
+        console.log('Uploaded successfully!')
+        console.log('https://' + url.split('/')[3] + '.' + url.split('/')[2] + '/' + filename)
+        return 'https://' + url.split('/')[3] + '.' + url.split('/')[2] + '/' + filename
+
+    } else {
+        console.error('Upload failed.')
+    }
 }
