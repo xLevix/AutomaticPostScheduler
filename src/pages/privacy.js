@@ -15,7 +15,7 @@ const content = "<h1>Privacy Policy of Social Media Post Scheduler</h1>\n" +
     "\n" +
     "<h2>Log Data</h2>\n" +
     "\n" +
-    "<p>We want to inform you that whenever you visit our Service, we collect information that your browser sends to us that is called Log Data. This Log Data may include information such as your computer's Internet Protocol (\"IP\") address, browser version, pages2 of our Service that you visit, the time and date of your visit, the time spent on those pages2, and other statistics.</p>\n" +
+    "<p>We want to inform you that whenever you visit our Service, we collect information that your browser sends to us that is called Log Data. This Log Data may include information such as your computer's Internet Protocol (\"IP\") address, browser version, pages of our Service that you visit, the time and date of your visit, the time spent on those pages, and other statistics.</p>\n" +
     "\n" +
     "<h2>Cookies</h2>\n" +
     "\n" +
