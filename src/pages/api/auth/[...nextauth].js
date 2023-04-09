@@ -29,17 +29,18 @@ export default NextAuth({
         }),
 
         TwitterProvider({
-            clientId: process.env.oauth_consumer_key,
-            clientSecret: process.env.oauth_consumer_secret,
+            clientId: process.env.TWITTER_ID,
+            clientSecret: process.env.TWITTER_SECRET,
+            version: "2.0",
+            authorization: {
+                params: {
+                    scope: 'users.read tweet.read tweet.write offline.access',
+                },
+            },
         }),
 
         CredentialsProvider({
-            // The name to display on the sign in form (e.g. "Sign in with...")
             name: "insta",
-            // `credentials` is used to generate a form on the sign in page.
-            // You can specify which fields should be submitted, by adding keys to the `credentials` object.
-            // e.g. domain, username, password, 2FA token, etc.
-            // You can pass any HTML attribute to the <input> tag through the object.
             credentials: {
                 username: { label: "Username", type: "text", placeholder: "login", id: "username", name: "username" },
                 password: { label: "Password", type: "password", id: "password", name: "password" }
@@ -50,16 +51,20 @@ export default NextAuth({
                 ig.state.generateDevice(credentials.username);
                 const auth = await ig.account.login(credentials.username, credentials.password);
 
-                return {
-                    username: credentials.username,
-                    password: credentials.password,
-                };
+                if (JSON.stringify(auth)) {
+                    return {
+                        username: credentials.username,
+                        password: credentials.password,
+                    };
+                } else {
+                    return null;
+                }
             }
         }),
     ],
     callbacks: {
         async jwt({ token, user, account }) {
-            if (account?.accessToken) {
+            if (account) {
                 token.accessToken = account.access_token;
             }
 
@@ -68,15 +73,15 @@ export default NextAuth({
                 token.accessToken = user.password;
             }
 
+            console.log("account", account)
             console.log("user", user);
+            console.log("token", token)
             return token;
         },
         async session({ session, token, }) {
             if (session?.user) {
-                if (token?.accessToken){
-                    session.user.id = token.sub;
-                    session.user.accessToken = token.accessToken;
-                }
+                session.user.id = token.sub;
+                session.user.accessToken = token.accessToken;
             }
             return {
                 ...session,
