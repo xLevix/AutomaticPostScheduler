@@ -36,6 +36,7 @@ export default function Home() {
                 setText('');
                 setResult('');
                 setTime(0)
+                setImage('');
             })
 
             .catch(function (error) {
