@@ -6,7 +6,7 @@ import {get} from "request-promise";
 const handler = nc<NextApiRequest, NextApiResponse>()
     .post(async (req, res) => {
 
-        const { username, password, img, desc } = req.body;
+        const { username, password, desc, img } = req.body;
 
         const ig = new IgApiClient();
         ig.state.generateDevice(username);
