@@ -24,6 +24,7 @@ const handler = nc<NextApiRequest, NextApiResponse>()
                 caption: desc,
             });
 
+            console.log(publishResult)
             if (JSON.stringify(publishResult)) {
                 res.status(200).json(JSON.stringify(publishResult));
             } else {
