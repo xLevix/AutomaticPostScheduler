@@ -4,7 +4,7 @@ import request from "request";
 
 const handler = nc<NextApiRequest, NextApiResponse>()
     .post((req, res) => {
-        const { img, userId, accessToken } = req.body; // pobieranie danych z ciała żądania
+        const { img, userId, accessToken } = req.body;
 
         var axios = require('axios');
         var data = JSON.stringify({

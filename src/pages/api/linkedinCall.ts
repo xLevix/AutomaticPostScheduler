@@ -3,7 +3,7 @@ import nc from 'next-connect';
 
 const handler = nc<NextApiRequest, NextApiResponse>()
     .post((req, res) => {
-        const { accessToken, text, userId, img } = req.body; // pobieranie danych z ciała żądania
+        const { accessToken, text, userId, img } = req.body;
 
         var axios = require('axios');
         var data = JSON.stringify({
@@ -19,7 +19,6 @@ const handler = nc<NextApiRequest, NextApiResponse>()
             "isReshareDisabledByAuthor": false
         });
 
-        //if img is not empty add content to data
         if (img !== '') {
             data = JSON.stringify({
                 "author": `urn:li:person:${userId}`,
