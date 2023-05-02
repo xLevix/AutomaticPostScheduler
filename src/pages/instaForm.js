@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import {useSession} from "next-auth/react";
+import {Textarea} from "@mantine/core";
+import {DateTimePicker} from "@mantine/dates";
+import moment from "moment";
 
 export default function Home() {
     const [text, setText] = useState('');
@@ -124,11 +127,11 @@ export default function Home() {
                 <label>
                     Opisz o czym chcialbys napisac i klinij play: <img src="https://cdn-icons-png.flaticon.com/512/0/375.png" alt="Zapytaj" width="50" height="50" onClick={ask}/>
                     <br />
-                    <textarea rows={5} cols={50} value={text} onChange={(e) => setText(e.target.value)} />
+                    <Textarea autosize minRows={2} maxRows={5} style={{width:"30%"}} value={text} onChange={(e) => setText(e.target.value)} />
                 </label>
                 <br />  <br />
                 Wygenerowany tekst: <br />
-                <textarea rows={10} cols={70} value={result} onChange={(e) => setResult(e.target.value)} />
+                <Textarea autosize minRows={5} maxRows={10} style={{width:"30%"}} value={result} onChange={(e) => setResult(e.target.value)} />
                 <br /> <br />
                 <p>Upload a .png or .jpg image (max 1MB).</p>
                 <input
@@ -137,8 +140,16 @@ export default function Home() {
                     accept="image/png, image/jpeg"
                 />
                 <br /> <br />
-                Czas za jaki wiadomość ma zostać wysłana: <br />
-                <input type={"number"} min={0} max={30} placeholder={"time"} onChange={(e)=>setTime(e.target.value)}/>
+                Kiedy wiadomość ma zostać wysłana: <br />
+                <DateTimePicker
+                    clearable
+                    defaultValue={new Date()}
+                    label="Pick date and time"
+                    placeholder="time"
+                    onChange={(value) => {
+                        setTime(moment(value).local().startOf('minute').fromNow())
+                    }}
+                />
                 <br />
                 <button type="submit">Send</button>
             </form>
