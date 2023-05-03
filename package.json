@@ -46,7 +46,6 @@
     "eslint": "8.35.0",
     "eslint-config-next": "13.2.3",
     "instagram-private-api": "^1.45.3",
-    "moment": "^2.29.4",
     "next": "13.2.3",
     "next-auth": "^4.20.1",
     "next-connect": "^0.13.0",

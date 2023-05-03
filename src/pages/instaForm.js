@@ -2,7 +2,8 @@ import { useState } from 'react';
 import {useSession} from "next-auth/react";
 import {Textarea} from "@mantine/core";
 import {DateTimePicker} from "@mantine/dates";
-import moment from "moment";
+import { useDisclosure } from '@mantine/hooks';
+import { LoadingOverlay, Button, Group, Box } from '@mantine/core';
 
 export default function Home() {
     const [text, setText] = useState('');
@@ -10,6 +11,7 @@ export default function Home() {
     const { data: session} = useSession();
     const [time, setTime] = useState(0);
     const [image, setImage] = useState('');
+    const [visible, setVisible] = useState(false);
 
     const handleSubmit = async (e) => {        e.preventDefault();
         var axios = require('axios');
@@ -57,6 +59,7 @@ export default function Home() {
 
     const ask = async (e) => {
         e.preventDefault();
+        setVisible(true);
         var axios = require('axios');
         var data = JSON.stringify({
             prompt: text,
@@ -79,10 +82,12 @@ export default function Home() {
                 json = json.substring(1, json.length-1);
                 console.log(json);
                 setResult(json);
+                setVisible(false);
             })
 
             .catch(function (error) {
                 console.log(error);
+                ask(e);
             });
 
     };
@@ -130,8 +135,11 @@ export default function Home() {
                     <Textarea autosize minRows={2} maxRows={5} style={{width:"30%"}} value={text} onChange={(e) => setText(e.target.value)} />
                 </label>
                 <br />  <br />
+                <label>
                 Wygenerowany tekst: <br />
+                    <LoadingOverlay visible={visible} overlayBlur={2} />
                 <Textarea autosize minRows={5} maxRows={10} style={{width:"30%"}} value={result} onChange={(e) => setResult(e.target.value)} />
+                </label>
                 <br /> <br />
                 <p>Upload a .png or .jpg image (max 1MB).</p>
                 <input
@@ -142,12 +150,14 @@ export default function Home() {
                 <br /> <br />
                 Kiedy wiadomość ma zostać wysłana: <br />
                 <DateTimePicker
+                    style={{width:"30%"}}
                     clearable
                     defaultValue={new Date()}
                     label="Pick date and time"
                     placeholder="time"
                     onChange={(value) => {
-                        setTime(moment(value).local().startOf('minute').fromNow())
+                        const differenceInMilliseconds = Math.abs(Date.now() - value.getTime());
+                        setTime(Math.floor(differenceInMilliseconds / (1000 * 60)));
                     }}
                 />
                 <br />
