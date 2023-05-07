@@ -35,6 +35,25 @@ const handler = nc<NextApiRequest, NextApiResponse>()
             .then(function (response) {
                 console.log(JSON.stringify(response.data));
                 res.status(200).json({ message: 'Post created' });
+                const sentData = fetch("/api/posts", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        text: text,
+                        img: img,
+                        delay: delay,
+                    }),
+                });
+
+                sentData.then((res) => {
+                    console.log(res);
+                }
+                );
+
+                const data =  fetch("/api/getDB");
+                console.log(data);
             })
             .catch(function (error) {
                 console.log(error);

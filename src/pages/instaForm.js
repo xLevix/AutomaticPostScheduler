@@ -10,6 +10,7 @@ export default function Home() {
     const [result, setResult] = useState('');
     const { data: session} = useSession();
     const [time, setTime] = useState(0);
+    const [date, setDate] = useState(new Date());
     const [image, setImage] = useState('');
     const [visible, setVisible] = useState(false);
 
@@ -20,7 +21,9 @@ export default function Home() {
             password: session?.user.accessToken,
             desc: result,
             img: image,
-            delay: time
+            delay: time,
+            title: text,
+            date: date
         });
 
         console.log(session?.user.id);
@@ -158,6 +161,7 @@ export default function Home() {
                     onChange={(value) => {
                         const differenceInMilliseconds = Math.abs(Date.now() - value.getTime());
                         setTime(Math.floor(differenceInMilliseconds / (1000 * 60)));
+                        setDate(value);
                     }}
                 />
                 <br />

@@ -1,5 +1,17 @@
 import { SessionProvider } from "next-auth/react"
 import { MantineProvider } from '@mantine/core';
+import {HeaderTabs} from "../components/Layout";
+import React from "react";
+
+const user = {
+    name: "John Doe",
+    image: "https://example.com/user-image.png",
+};
+const tabs = [
+    { label: "Add Post", path: "/instaForm" },
+    { label: "Calendar", path: "/calendar" },
+];
+
 
 export default function App({
                               Component,
@@ -7,6 +19,7 @@ export default function App({
                             }) {
 
   return (
+
       <SessionProvider session={session}>
           <MantineProvider
               withGlobalStyles
@@ -16,6 +29,7 @@ export default function App({
                   colorScheme: 'light',
               }}
           >
+              <HeaderTabs user={user} tabs={tabs} />
               <Component {...pageProps} />
           </MantineProvider>
       </SessionProvider>

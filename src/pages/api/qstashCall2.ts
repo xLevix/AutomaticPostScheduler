@@ -3,7 +3,7 @@ import nc from 'next-connect';
 
 const handler = nc<NextApiRequest, NextApiResponse>()
     .post((req, res) => {
-        const { delay, img, username, password, desc } = req.body;
+        const { delay, img, username, password, desc, title, date } = req.body;
 
         var axios = require('axios');
         var data = JSON.stringify({
@@ -29,6 +29,35 @@ const handler = nc<NextApiRequest, NextApiResponse>()
             .then(function (response) {
                 console.log(JSON.stringify(response.data));
                 res.status(200).json({ message: 'Post created' });
+
+                let data2 = JSON.stringify({
+                    "userId": username,
+                    "img": img,
+                    "text": desc,
+                    "delay": delay,
+                    "title": title,
+                    "date": date
+                });
+
+                let config2 = {
+                    method: 'post',
+                    maxBodyLength: Infinity,
+                    url: 'http://localhost:3000/api/getMongo',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    data : data2
+                };
+
+                axios.request(config2)
+                    .then((response2) => {
+                        console.log(JSON.stringify(response2.data));
+                    })
+                    .catch((error2) => {
+                        console.log(error2);
+                    });
+
+
             })
             .catch(function (error) {
                 console.log(error);
