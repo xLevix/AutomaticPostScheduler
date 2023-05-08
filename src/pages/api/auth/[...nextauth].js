@@ -17,16 +17,6 @@ export default NextAuth({
                 },
             },
         }),
-        FacebookProvider({
-            clientId: process.env.FACEBOOK_ID,
-            clientSecret: process.env.FACEBOOK_SECRET,
-            userinfo: {
-                params: {
-                    fields: 'id,name,email,link,publish_to_groups,pages_manage_posts',
-                },
-            },
-
-        }),
 
         TwitterProvider({
             clientId: process.env.TWITTER_ID,

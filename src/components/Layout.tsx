@@ -1,55 +1,21 @@
 import { useState } from 'react';
-import {
-    createStyles,
-    Container,
-    Avatar,
-    UnstyledButton,
-    Group,
-    Text,
-    Menu,
-    Tabs,
-    Burger,
-    rem,
-} from '@mantine/core';
+import { createStyles, Header, Container, Group, Burger, rem } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import {
-    IconLogout,
-    IconHeart,
-    IconStar,
-    IconMessage,
-    IconSettings,
-    IconPlayerPause,
-    IconTrash,
-    IconSwitchHorizontal,
-    IconChevronDown,
-} from '@tabler/icons-react';
-import { MantineLogo } from '@mantine/ds';
-import Link from "next/link";
+import { Image } from '@mantine/core';
+import Link from 'next/link';
+import {useSession} from "next-auth/react";
+
+
 
 const useStyles = createStyles((theme) => ({
     header: {
-        paddingTop: theme.spacing.sm,
-        backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
-        borderBottom: `${rem(1)} solid ${
-            theme.colorScheme === 'dark' ? 'transparent' : theme.colors.gray[2]
-        }`,
-        marginBottom: rem(120),
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        height: '100%',
     },
 
-    mainSection: {
-        paddingBottom: theme.spacing.sm,
-    },
-
-    user: {
-        color: theme.colorScheme === 'dark' ? theme.colors.dark[0] : theme.black,
-        padding: `${theme.spacing.xs} ${theme.spacing.sm}`,
-        borderRadius: theme.radius.sm,
-        transition: 'background-color 100ms ease',
-
-        '&:hover': {
-            backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[8] : theme.white,
-        },
-
+    links: {
         [theme.fn.smallerThan('xs')]: {
             display: 'none',
         },
@@ -61,106 +27,86 @@ const useStyles = createStyles((theme) => ({
         },
     },
 
-    userActive: {
-        backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[8] : theme.white,
-    },
-
-    tabs: {
-        [theme.fn.smallerThan('sm')]: {
-            display: 'none',
-        },
-    },
-
-    tabsList: {
-        borderBottom: '0 !important',
-    },
-
-    tab: {
+    link: {
+        display: 'block',
+        lineHeight: 1,
+        padding: `${rem(8)} ${rem(12)}`,
+        borderRadius: theme.radius.sm,
+        textDecoration: 'none !important',
+        color: theme.colorScheme === 'dark' ? theme.colors.dark[0] : theme.colors.gray[7],
+        fontSize: theme.fontSizes.sm,
         fontWeight: 500,
-        height: rem(38),
-        backgroundColor: 'transparent',
 
         '&:hover': {
-            backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[1],
+            backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
         },
+    },
 
-        '&[data-active]': {
-            backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white,
-            borderColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.colors.gray[2],
+    linkActive: {
+        '&, &:hover': {
+            backgroundColor: theme.fn.variant({ variant: 'light', color: theme.primaryColor }).background,
+            color: theme.fn.variant({ variant: 'light', color: theme.primaryColor }).color,
         },
     },
 }));
 
-interface HeaderTabsProps {
-    children?: React.ReactNode;
-    user: { name: string; image: string };
-    tabs: { label: string; path: string }[];
+interface HeaderSimpleProps {
+    links: { link: string; label: string }[];
 }
 
-export function HeaderTabs({ user, tabs}: HeaderTabsProps) {
-    const { classes, theme, cx } = useStyles();
-    const [opened, { toggle }] = useDisclosure(false);
-    const [userMenuOpened, setUserMenuOpened] = useState(false);
 
-    const items = tabs.map((tab) => (
-        <Link href={tab.path} key={tab.label} passHref>
-            <Tabs.Tab value={tab.label}>
-                {tab.label}
-            </Tabs.Tab>
+export function HeaderSimple({ links }: HeaderSimpleProps) {
+    const [opened, { toggle }] = useDisclosure(false);
+    const [active, setActive] = useState(links[0].link);
+    const { classes, cx } = useStyles();
+    const { data: session} = useSession();
+
+    const items = links.map((link) => (
+        <Link key={link.label} href={link.link} passHref>
+            <a
+                className={cx(classes.link, { [classes.linkActive]: active === link.link })}
+                onClick={() => setActive(link.link)}
+            >
+                {link.label}
+            </a>
         </Link>
     ));
 
 
+    if (session?.user) {
+        items.push(
+            <Link key={"logout"} href={"/api/auth/signout"} passHref>
+                <a
+                    className={cx(classes.link, { [classes.linkActive]: active === "logout" })}
+                    onClick={() => setActive("logout")}
+                >
+                    {"Logout"}
+                </a>
+            </Link>
+        )
+    }else{
+        items.push(
+            <Link key={"login"} href={"/api/auth/signin"} passHref>
+                <a
+                    className={cx(classes.link, { [classes.linkActive]: active === "login" })}
+                    onClick={() => setActive("login")}
+                >
+                    {"Login"}
+                </a>
+            </Link>
+        )
+    }
+
     return (
-        <div className={classes.header}>
-        <Container className={classes.mainSection}>
-        <Group position="apart">
-        <MantineLogo size={28} />
+        <Header height={60} mb={120}>
+            <Container className={classes.header}>
+                <Image height={"40%"} width={"40%"} src="https://cdk-hnb659fds-assets-329914929726-eu-north-1.s3.eu-north-1.amazonaws.com/logo.png" alt="Logo" />
+                <Group spacing={5} className={classes.links}>
+                    {items}
+                </Group>
 
-    <Burger opened={opened} onClick={toggle} className={classes.burger} size="sm" />
-
-    <Menu
-        width={260}
-    position="bottom-end"
-    transitionProps={{ transition: 'pop-top-right' }}
-    onClose={() => setUserMenuOpened(false)}
-    onOpen={() => setUserMenuOpened(true)}
-    withinPortal
-    >
-    <Menu.Target>
-        <UnstyledButton
-            className={cx(classes.user, { [classes.userActive]: userMenuOpened })}
->
-    <Group spacing={7}>
-    <Avatar src={user.image} alt={user.name} radius="xl" size={20} />
-    <Text weight={500} size="sm" sx={{ lineHeight: 1 }} mr={3}>
-        {user.name}
-        </Text>
-        <IconChevronDown size={rem(12)} stroke={1.5} />
-    </Group>
-    </UnstyledButton>
-    </Menu.Target>
-    <Menu.Dropdown>
-    <Menu.Label>Settings</Menu.Label>
-    <Menu.Item icon={<IconLogout size="0.9rem" stroke={1.5} />}>Logout</Menu.Item>
-    <Menu.Divider />
-    </Menu.Dropdown>
-    </Menu>
-    </Group>
-    </Container>
-    <Container>
-    <Tabs
-        defaultValue="Home"
-    variant="outline"
-    classNames={{
-        root: classes.tabs,
-            tabsList: classes.tabsList,
-            tab: classes.tab,
-    }}
->
-    <Tabs.List>{items}</Tabs.List>
-    </Tabs>
-    </Container>
-    </div>
-);
+                <Burger opened={opened} onClick={toggle} className={classes.burger} size="sm" />
+            </Container>
+        </Header>
+    );
 }
