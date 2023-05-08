@@ -42,7 +42,7 @@ const handler = nc<NextApiRequest, NextApiResponse>()
                 let config2 = {
                     method: 'post',
                     maxBodyLength: Infinity,
-                    url: 'http://localhost:3000/api/getMongo',
+                    url: 'https://automatic-post-scheduler.vercel.app/api/getMongo',
                     headers: {
                         'Content-Type': 'application/json'
                     },
