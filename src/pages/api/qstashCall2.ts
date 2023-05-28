@@ -5,15 +5,15 @@ const handler = nc<NextApiRequest, NextApiResponse>()
     .post((req, res) => {
         const { delay, img, username, password, desc, title, date } = req.body;
 
-        var axios = require('axios');
-        var data = JSON.stringify({
+        let axios = require('axios');
+        let data = JSON.stringify({
             username: username,
             password: password,
             desc: desc,
             img: img
         });
 
-        var config = {
+        let config = {
             method: 'post',
             maxBodyLength: Infinity,
             url: 'https://qstash.upstash.io/v1/publish/https://automatic-post-scheduler.vercel.app/api/instagramCall',
@@ -22,7 +22,7 @@ const handler = nc<NextApiRequest, NextApiResponse>()
                 'Upstash-Delay': `${delay}m`,
                 'Authorization': `Bearer ${process.env.QSTASH_TOKEN}`
             },
-            data : data
+            data: data
         };
 
         axios(config)

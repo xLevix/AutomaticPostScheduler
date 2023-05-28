@@ -55,7 +55,7 @@ interface HeaderSimpleProps {
 }
 
 
-export function HeaderSimple({ links }: HeaderSimpleProps) {
+export function HeaderSimple({ links }: HeaderSimpleProps | null) {
     const [opened, { toggle }] = useDisclosure(false);
     const [active, setActive] = useState(links[0].link);
     const { classes, cx } = useStyles();

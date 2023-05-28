@@ -1,10 +1,8 @@
 import NextAuth from "next-auth"
 import LinkedIn from "next-auth/providers/linkedin";
-import FacebookProvider from "next-auth/providers/facebook";
 import CredentialsProvider from "next-auth/providers/credentials";
 import TwitterProvider from "next-auth/providers/twitter";
 import {IgApiClient} from "instagram-private-api";
-
 
 export default NextAuth({
     providers: [
