@@ -8,20 +8,17 @@ function HeaderWithSession() {
 
     const tabs = React.useMemo(() => {
         if (session) {
-            // Użytkownik jest zalogowany
             return [
                 { label: "Add Post", link: "/instaForm" },
                 { label: "Calendar", link: "/calendar" },
                 { label: "Logout", link: "/api/auth/signout" },
             ];
         } else {
-            // Użytkownik nie jest zalogowany
             return [
                 { label: "Login", link: "/api/auth/signin" },
             ];
         }
-    }, [session]);  // Aktualizuj tabs, gdy stan sesji się zmieni
-
+    }, [session]);
     return <HeaderResponsive links={tabs} />;
 }
 
