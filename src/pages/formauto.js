@@ -110,7 +110,7 @@ export default function Home() {
         };
         axios.post('api/gptCall', data)
             .then(response => {
-                setResult(response.data.replace(/[^\w\s]/gi, ''));
+                setResult(response.data.replace(/[`~^_|\-"\{\}\[\]\\\/]/gi, ''));
                 setLoading(false);
             })
             .catch(error => {
