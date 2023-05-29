@@ -42,7 +42,7 @@ export default function Home() {
                 text: result,
                 userId: session?.user.id,
                 delay: time,
-                img: image,
+                img: image ? image : undefined,
                 date: date,
                 provider: 'linkedin'
             };
@@ -52,7 +52,7 @@ export default function Home() {
                 username: session?.user.id,
                 password: session?.user.accessToken,
                 desc: result,
-                img: image,
+                img: image ? image : undefined,
                 delay: time,
                 title: text,
                 date: date,

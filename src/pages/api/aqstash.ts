@@ -3,7 +3,7 @@ import nc from 'next-connect';
 
 const handler = nc<NextApiRequest, NextApiResponse>()
     .post((req, res) => {
-        const { delay, img, username, password, desc, title, date, accessToken, text, userId, session, provider } = req.body;
+        const { delay, img, username, password, desc, title, date, accessToken, text, userId, provider } = req.body;
         let axios = require('axios');
         let url = provider === 'linkedin' ? 'https://automatic-post-scheduler.vercel.app/api/linkedinCall' : 'https://automatic-post-scheduler.vercel.app/api/instagramCall';
         let data = provider === 'linkedin' ? JSON.stringify({
@@ -38,7 +38,7 @@ const handler = nc<NextApiRequest, NextApiResponse>()
                 if (provider === 'linkedin') {
                     data2 = JSON.stringify({
                         "userId": userId,
-                        "img": img ? img : undefined,
+                        "img": img ? img : '',
                         "text": text,
                         "delay": delay,
                         "title": title,
