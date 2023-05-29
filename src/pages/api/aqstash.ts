@@ -34,14 +34,27 @@ const handler = nc<NextApiRequest, NextApiResponse>()
             .then(function (response) {
                 console.log(JSON.stringify(response.data));
 
-                let data2 = JSON.stringify({
-                    "userId": session?.user.name ? userId : username,
-                    "img": img ? img : undefined,
-                    "text": session?.user.name ? text : desc,
-                    "delay": delay,
-                    "title": title,
-                    "date": date,
-                });
+                let data2 ={};
+                if (provider === 'linkedin') {
+                    data2 = JSON.stringify({
+                        "userId": userId,
+                        "img": img ? img : undefined,
+                        "text": text,
+                        "delay": delay,
+                        "title": title,
+                        "date": date,
+                    });
+                }else {
+                    data2 = JSON.stringify({
+                        "userId": username,
+                        "img": img ? img : undefined,
+                        "text": desc,
+                        "delay": delay,
+                        "title": title,
+                        "date": date,
+                    });
+                }
+
 
                 let config2 = {
                     method: 'post',
