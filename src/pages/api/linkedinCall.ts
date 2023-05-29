@@ -19,7 +19,7 @@ const handler = nc<NextApiRequest, NextApiResponse>()
             "isReshareDisabledByAuthor": false
         });
 
-        if (img !== '') {
+        if (img !== undefined) {
             data = JSON.stringify({
                 "author": `urn:li:person:${userId}`,
                 "commentary": `${text}`,
@@ -61,7 +61,7 @@ const handler = nc<NextApiRequest, NextApiResponse>()
             })
             .catch(function (error) {
                 console.log(error);
-                res.status(500).json({ message: 'Post not created' });
+                res.status(500).json({ message: 'Post not created', error: error });
             });
 
     });

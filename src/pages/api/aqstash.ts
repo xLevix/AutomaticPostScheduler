@@ -3,46 +3,44 @@ import nc from 'next-connect';
 
 const handler = nc<NextApiRequest, NextApiResponse>()
     .post((req, res) => {
-        const { accessToken, text, userId, delay, img } = req.body;
-
-        var axios = require('axios');
-        var data = JSON.stringify({
+        const { delay, img, username, password, desc, title, date, accessToken, text, userId, session, provider } = req.body;
+        let axios = require('axios');
+        let url = provider === 'linkedin' ? 'https://automatic-post-scheduler.vercel.app/api/linkedinCall' : 'https://automatic-post-scheduler.vercel.app/api/instagramCall';
+        let data = provider === 'linkedin' ? JSON.stringify({
             accessToken: accessToken,
             text: text,
-            userId: userId
+            userId: userId,
+            img: img ? img : undefined
+        }) : JSON.stringify({
+            username: username,
+            password: password,
+            desc: desc,
+            img: img
         });
 
-        if (img) {
-            data = JSON.stringify({
-                accessToken: accessToken,
-                text: text,
-                userId: userId,
-                img: img
-            });
-        }
-
-        var config = {
+        let config = {
             method: 'post',
             maxBodyLength: Infinity,
-            url: 'https://qstash.upstash.io/v1/publish/https://automatic-post-scheduler.vercel.app/api/linkedinCall',
+            url: `https://qstash.upstash.io/v1/publish/${url}`,
             headers: {
                 'Content-Type': 'application/json',
                 'Upstash-Delay': `${delay}m`,
                 'Authorization': `Bearer ${process.env.QSTASH_TOKEN}`
             },
-            data : data
+            data: data
         };
 
         axios(config)
             .then(function (response) {
                 console.log(JSON.stringify(response.data));
-                res.status(200).json({ message: 'Post created' });
 
                 let data2 = JSON.stringify({
-                    "userId": userId,
-                    "img": img,
-                    "text": text,
-                    "delay": delay
+                    "userId": session?.user.name ? userId : username,
+                    "img": img ? img : undefined,
+                    "text": session?.user.name ? text : desc,
+                    "delay": delay,
+                    "title": title,
+                    "date": date,
                 });
 
                 let config2 = {
@@ -57,16 +55,18 @@ const handler = nc<NextApiRequest, NextApiResponse>()
 
                 axios.request(config2)
                     .then((response2) => {
+                        res.status(200).json({ message: 'Post created' });
                         console.log(JSON.stringify(response2.data));
                     })
                     .catch((error2) => {
                         console.log(error2);
+                        res.status(500).json({ message: 'Post not created', error: error2 });
                     });
 
             })
             .catch(function (error) {
                 console.log(error);
-                res.status(500).json({ message: 'Post not created' });
+                res.status(500).json({ message: 'Post not created', error: error });
             });
 
     });
