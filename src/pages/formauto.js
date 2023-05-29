@@ -44,6 +44,7 @@ export default function Home() {
                 delay: time,
                 img: image ? image : undefined,
                 date: date,
+                title: text,
                 provider: 'linkedin'
             };
         } else {
