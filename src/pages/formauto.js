@@ -143,7 +143,7 @@ export default function Home() {
             console.log('https://' + url.split('/')[3] + '.' + url.split('/')[2] + '/' + filename)
             setImage('https://' + url.split('/')[3] + '.' + url.split('/')[2] + '/' + filename)
 
-            if (provider=== 'linkedin') {
+            if (session?.user.name) {
                 axios.post('api/linkedinImgCall', {
                     accessToken: session?.user.accessToken,
                     userId: session?.user.id,
