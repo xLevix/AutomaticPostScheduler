@@ -3,7 +3,7 @@ import nc from 'next-connect';
 
 const handler = nc<NextApiRequest, NextApiResponse>()
     .post((req, res) => {
-        const { accessToken, text, userId, delay, img } = req.body;
+        const { accessToken, text, userId, delay, img, date } = req.body;
 
         var axios = require('axios');
         var data = JSON.stringify({
@@ -42,7 +42,8 @@ const handler = nc<NextApiRequest, NextApiResponse>()
                     "userId": userId,
                     "img": img,
                     "text": text,
-                    "delay": delay
+                    "delay": delay,
+                    "date": date
                 });
 
                 let config2 = {

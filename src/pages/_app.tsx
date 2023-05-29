@@ -9,7 +9,7 @@ function HeaderWithSession() {
     const tabs = React.useMemo(() => {
         if (session) {
             return [
-                { label: "Add Post", link: "/instaForm" },
+                { label: "Add Post", link: "/formauto" },
                 { label: "Calendar", link: "/calendar" },
                 { label: "Logout", link: "/api/auth/signout" },
             ];

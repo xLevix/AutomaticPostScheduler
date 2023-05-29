@@ -60,7 +60,9 @@ export default function Home() {
             };
         }
 
-        axios.post('/api/aqstash', data)
+        let endpoint = session?.user.name ? 'api/qstashCall' : 'api/qstashCall2';
+
+        axios.post(endpoint, data)
             .then(response => {
                 setLoading(false);
                 if (response.status === 200) {
