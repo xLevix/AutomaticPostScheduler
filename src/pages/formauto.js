@@ -153,6 +153,7 @@ export default function Home() {
                         console.log(JSON.stringify(response.data));
                         if (response.status === 200) {
                             setImage(response.data.assetID.slice(1,-1));
+                            console.log(response.data.assetID.slice(1,-1))
                         } else {
                             alert("Coś poszło nie tak :(");
                         }
