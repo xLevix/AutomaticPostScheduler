@@ -60,7 +60,7 @@ export default function Calendar() {
                 events={events}
 
                 eventTimeFormat={{
-                    hour: '2-digit',
+                    hour: 'numeric',
                     minute: '2-digit',
                     meridiem: false
                 }}
