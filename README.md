@@ -4,7 +4,7 @@ Web application to automatic generation and scheduling of posts published in soc
 
 The project is written in Next.js, serverless. I use QStash service cron as background tasks and AWS S3 for file processing. OAuth2 method is used as the primary authorization option.
 
-[Deployment](https://automatic-post-scheduler.vercel.app/)
-[A brief presentation and description of what the project is about](https://github.com/xLevix/AutomaticPostScheduler/blob/main/brief1.pdf)
-[Development Progress](https://github.com/xLevix/AutomaticPostScheduler/blob/main/dev.pdf)
+[Deployment](https://automatic-post-scheduler.vercel.app/)<br />
+[A brief presentation and description of what the project is about](https://github.com/xLevix/AutomaticPostScheduler/blob/main/brief1.pdf)<br />
+[Development Progress](https://github.com/xLevix/AutomaticPostScheduler/blob/main/dev.pdf)<br />
 [Market Analysis](https://github.com/xLevix/AutomaticPostScheduler/blob/main/market.pdf)
