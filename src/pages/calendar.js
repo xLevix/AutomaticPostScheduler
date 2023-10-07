@@ -58,11 +58,10 @@ export default function Calendar() {
                     right: 'dayGridMonth,timeGridWeek,timeGridDay',
                 }}
                 events={events}
-
                 eventTimeFormat={{
                     hour: 'numeric',
                     minute: '2-digit',
-                    meridiem: false
+                    hour12: false 
                 }}
 
             />

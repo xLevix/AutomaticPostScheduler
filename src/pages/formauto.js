@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useSession } from "next-auth/react";
+import { useRouter } from 'next/router';
 import {
     Textarea,
     Paper,
@@ -12,10 +13,11 @@ import {
     Col,
     rem,
     Group,
-    LoadingOverlay, Space
+    LoadingOverlay,
+    Space
 } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
-import {IconCheck, IconUpload, IconX} from '@tabler/icons-react';
+import { IconCheck, IconUpload, IconX } from '@tabler/icons-react';
 import axios from 'axios';
 
 export default function Home() {
@@ -27,79 +29,66 @@ export default function Home() {
     const [image, setImage] = useState('');
     const [loading, setLoading] = useState(false);
     const [notification, setNotification] = useState(null);
-    const [provider, setProvider] = useState('');
+    const [provider, setProvider] = useState(session?.user.name ? 'linkedin' : 'instagram');
+    const router = useRouter();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         setNotification(null);
 
-        let data={};
-        if (session?.user.name) {
-            setProvider('linkedin');
-            data = {
-                accessToken: session?.user.accessToken,
-                text: result,
-                userId: session?.user.id,
-                delay: time,
-                img: image ? image : undefined,
-                date: date,
-                title: text,
-                provider: 'linkedin'
-            };
-        } else {
-            setProvider('instagram');
-            data = {
-                username: session?.user.id,
-                password: session?.user.accessToken,
-                desc: result,
-                img: image ? image : undefined,
-                delay: time,
-                title: text,
-                date: date,
-                provider: 'instagram'
-            };
-        }
+        const data = {
+            accessToken: session?.user.accessToken,
+            text: result,
+            userId: session?.user.id,
+            delay: time,
+            img: image || undefined,
+            date,
+            title: text,
+            provider
+        };
 
-        let endpoint = session?.user.name ? 'api/qstashCall' : 'api/qstashCall2';
+        const endpoint = "api/uQStashCall?platform="+provider;
 
-        axios.post(endpoint, data)
-            .then(response => {
-                setLoading(false);
-                if (response.status === 200) {
-                    setNotification(
-                        <Notification
-                            title="Success"
-                            color="teal"
-                            icon={<IconCheck size="1.1rem" />}
-                        >
-                            Wiadomość została dodana do kolejki.
-                        </Notification>
-                    );
-                } else {
-                    setNotification(
-                        <Notification
-                            title="Failure"
-                            color="red"
-                            icon={<IconX size="1.1rem" />}
-                        >
-                            Wystąpił błąd podczas przesyłania.
-                        </Notification>
-                    );
-                }
-            })
-            .catch(error => {
-                setLoading(false);
-                console.log(error);
+        try {
+            const response = await axios.post(endpoint, data);
+            setLoading(false);
+            if (response.status === 200) {
                 setNotification(
                     <Notification
-                        title="Error"
-                        message="Wystąpił błąd podczas przesyłania."
+                        title="Success"
+                        color="teal"
+                        icon={<IconCheck size="1.1rem" />}
+                    >
+                        Wiadomość została dodana do kolejki.
+                    </Notification>
+                );
+                setTimeout(() => {
+                    router.push('/calendar');
+                }, 4000);
+            } else {
+                setNotification(
+                    <Notification
+                        title="Failure"
                         color="red"
                         icon={<IconX size="1.1rem" />}
-                    />
+                    >
+                        Wystąpił błąd podczas przesyłania.
+                    </Notification>
                 );
-            });
+            }
+        } catch (error) {
+            setLoading(false);
+            console.log(error);
+            setNotification(
+                <Notification
+                    title="Error"
+                    message="Wystąpił błąd podczas przesyłania."
+                    color="red"
+                    icon={<IconX size="1.1rem" />}
+                />
+            );
+        }
     };
 
     const ask = async (e) => {
@@ -108,19 +97,18 @@ export default function Home() {
         const data = {
             prompt: text,
         };
-        axios.post('api/gptCall', data)
-            .then(response => {
-                setResult(response.data.replace(/[`~^_|\-"\{\}\[\]\\\/]/gi, ''));
-                setLoading(false);
-            })
-            .catch(error => {
-                console.log(error);
-                ask(e);
-            });
+        try {
+            const response = await axios.post('api/gptCall', data);
+            setResult(response.data);
+            setLoading(false);
+        } catch (error) {
+            console.log(error);
+            ask(e);
+        }
     };
 
     const uploadPhoto = async (file) => {
-        if(!file) {
+        if (!file) {
             return;
         }
 
@@ -144,24 +132,22 @@ export default function Home() {
             setImage('https://' + url.split('/')[3] + '.' + url.split('/')[2] + '/' + filename)
 
             if (session?.user.name) {
-                axios.post('api/linkedinImgCall', {
-                    accessToken: session?.user.accessToken,
-                    userId: session?.user.id,
-                    img: 'https://' + url.split('/')[3] + '.' + url.split('/')[2] + '/' + filename
-                })
-                    .then(function (response) {
-                        console.log(JSON.stringify(response.data));
-                        if (response.status === 200) {
-                            setImage(response.data.assetID.slice(1,-1));
-                            console.log(response.data.assetID.slice(1,-1))
-                        } else {
-                            alert("Coś poszło nie tak :(");
-                        }
-                    })
-
-                    .catch(function (error) {
-                        console.log(error);
+                try {
+                    const response = await axios.post('api/linkedinImgCall', {
+                        accessToken: session?.user.accessToken,
+                        userId: session?.user.id,
+                        img: 'https://' + url.split('/')[3] + '.' + url.split('/')[2] + '/' + filename
                     });
+                    console.log(JSON.stringify(response.data));
+                    if (response.status === 200) {
+                        setImage(response.data.assetID.slice(1, -1));
+                        console.log(response.data.assetID.slice(1, -1))
+                    } else {
+                        alert("Coś poszło nie tak :(");
+                    }
+                } catch (error) {
+                    console.log(error);
+                }
             }
         } else {
             console.error('Upload failed.')
@@ -188,33 +174,31 @@ export default function Home() {
                             <Space h="md" />
                             <Button onClick={ask} fullWidth={true}>Zapytaj</Button>
                             <Space h="xl" />
-                            {
-                                loading ? (
-                                    <LoadingOverlay
-                                        visible={loading}
-                                        opacity={0.9}
-                                        color="gray"
-                                        zIndex={1000}
-                                        loader={<Loader />}
-                                    >
-                                    </LoadingOverlay>
-                                ) : (
-                                    <Textarea
-                                        label="Wygenerowany tekst"
-                                        placeholder={"Tutaj pojawi się wygenerowany tekst"}
-                                        autosize
-                                        minRows={5}
-                                        maxRows={10}
-                                        value={result}
-                                        onChange={e => setResult(e.target.value)}
-                                    />
-                                )
-                            }
+                            {loading ? (
+                                <LoadingOverlay
+                                    visible={loading}
+                                    opacity={0.9}
+                                    color="gray"
+                                    zIndex={1000}
+                                    loader={<Loader />}
+                                >
+                                </LoadingOverlay>
+                            ) : (
+                                <Textarea
+                                    label="Wygenerowany tekst"
+                                    placeholder={"Tutaj pojawi się wygenerowany tekst"}
+                                    autosize
+                                    minRows={5}
+                                    maxRows={10}
+                                    value={result}
+                                    onChange={e => setResult(e.target.value)}
+                                />
+                            )}
                             <Space h="md" />
                             <FileInput
                                 label="Prześlij zdjęcie (.png lub .jpg, max 1MB)"
                                 placeholder={"Wybierz zdjęcie"}
-                                icon={<IconUpload size={rem(14)}/>}
+                                icon={<IconUpload size={rem(14)} />}
                                 onChange={(file) => {
                                     uploadPhoto(file);
                                 }}
@@ -225,6 +209,7 @@ export default function Home() {
                                 clearable
                                 label="Kiedy wiadomość ma zostać wysłana?"
                                 placeholder={"Wybierz datę i godzinę"}
+                                minDate={new Date()} 
                                 onChange={value => {
                                     const differenceInMilliseconds = Math.abs(Date.now() - value.getTime());
                                     setTime(Math.floor(differenceInMilliseconds / (1000 * 60)));

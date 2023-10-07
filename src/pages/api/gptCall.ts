@@ -30,7 +30,7 @@ const handler = nc<NextApiRequest, NextApiResponse>()
 
         axios.request(config)
             .then((response) => {
-                res.status(200).json(JSON.stringify(response.data.choices[0].message.content));
+                res.status(200).json(response.data.choices[0].message.content);
             })
             .catch((error) => {
                 res.status(500).json(error);
