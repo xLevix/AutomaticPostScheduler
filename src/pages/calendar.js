@@ -34,11 +34,11 @@ export default function Calendar() {
         }
     }, [session]);
 
-    // Map posts to events for FullCalendar
     const events = posts.map((post) => ({
         title: post.title,
         date: post.date,
-        text: post.text
+        text: post.text,
+        url: '/post/'+post.messageId
     }));
 
     return (
