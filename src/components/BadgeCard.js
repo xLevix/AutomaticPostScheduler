@@ -21,7 +21,7 @@ const BadgeCard = ({ postData }) => {
         {text}
       </Text>
 
-      <Button variant="light" color="blue" fullWidth mt="md" radius="md" color={"red"}>
+      <Button variant="light" color="red" fullWidth mt="md" radius="md">
         Delete planned post
       </Button>
     </Card>
