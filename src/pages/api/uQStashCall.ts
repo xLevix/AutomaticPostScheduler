@@ -47,7 +47,7 @@ const handler = nc<NextApiRequest, NextApiResponse>()
         const config = {
             method: 'post',
             maxBodyLength: Infinity,
-            url: `https://qstash.upstash.io/v2/publish/${baseEndpoint}${endpoints[platform]}`,
+            url: `https://qstash.upstash.io/v1/publish/${baseEndpoint}${endpoints[platform]}`,
             headers: {
                 'Content-Type': 'application/json',
                 'Upstash-Delay': `${req.body.delay}m`,

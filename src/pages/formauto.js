@@ -19,6 +19,7 @@ import {
 import { DateTimePicker } from '@mantine/dates';
 import { IconCheck, IconUpload, IconX } from '@tabler/icons-react';
 import axios from 'axios';
+import { set } from 'react-hook-form';
 
 export default function Home() {
     const { data: session } = useSession();
@@ -27,6 +28,7 @@ export default function Home() {
     const [time, setTime] = useState(0);
     const [date, setDate] = useState(new Date());
     const [image, setImage] = useState('');
+    const [imageUrl, setImageUrl] = useState('');
     const [loading, setLoading] = useState(false);
     const [notification, setNotification] = useState(null);
     const [provider, setProvider] = useState(session?.user.name ? 'linkedin' : 'instagram');
@@ -45,7 +47,8 @@ export default function Home() {
             img: image || undefined,
             date,
             title: text,
-            provider
+            provider,
+            imageUrl: imageUrl || undefined,
         };
 
         const endpoint = "api/uQStashCall?platform="+provider;
@@ -65,7 +68,7 @@ export default function Home() {
                 );
                 setTimeout(() => {
                     router.push('/calendar');
-                }, 4000);
+                }, 2000);
             } else {
                 setNotification(
                     <Notification
@@ -98,8 +101,25 @@ export default function Home() {
             prompt: text,
         };
         try {
-            const response = await axios.post('api/gptCall', data);
-            setResult(response.data);
+            const response = await axios.post('/api/gptCall', data, {
+                headers: {
+                    'Content-Type': 'text/event-stream',
+                },
+                responseType: 'stream', 
+            });
+    
+            // Handle the streaming response
+            const reader = response.data
+                .pipeThrough(new TextDecoderStream())
+                .getReader();
+            let accumulatedResponse = '';
+            while (true) {
+                const { value, done } = await reader.read();
+                if (done) break;
+                console.log('Received:', value);
+                accumulatedResponse += value;
+                setResult(accumulatedResponse);
+            }
             setLoading(false);
         } catch (error) {
             console.log(error);
@@ -107,52 +127,73 @@ export default function Home() {
         }
     };
 
+    const checkAspectRatio = (width, height) => {
+        const aspectRatio = width / height;
+        return aspectRatio >= (4 / 5) && aspectRatio <= 1.91;
+    };
+    
     const uploadPhoto = async (file) => {
         if (!file) {
             return;
         }
-
-        const filename = encodeURIComponent(file.name)
-        const fileType = encodeURIComponent(file.type)
-        const res = await fetch(
-            `/api/upload-url?file=${filename}&fileType=${fileType}`
-        )
-        const { url, fields } = await res.json()
-        const formData = new FormData()
-        Object.entries({ ...fields, file }).forEach(([key, value]) => {
-            formData.append(key, value)
-        })
-        const upload = await fetch(url, {
-            method: 'POST',
-            body: formData,
-        })
-        if (upload.ok) {
-            console.log('Uploaded successfully!')
-            console.log('https://' + url.split('/')[3] + '.' + url.split('/')[2] + '/' + filename)
-            setImage('https://' + url.split('/')[3] + '.' + url.split('/')[2] + '/' + filename)
-
-            if (session?.user.name) {
-                try {
-                    const response = await axios.post('api/linkedinImgCall', {
-                        accessToken: session?.user.accessToken,
-                        userId: session?.user.id,
-                        img: 'https://' + url.split('/')[3] + '.' + url.split('/')[2] + '/' + filename
-                    });
-                    console.log(JSON.stringify(response.data));
-                    if (response.status === 200) {
-                        setImage(response.data.assetID.slice(1, -1));
-                        console.log(response.data.assetID.slice(1, -1))
-                    } else {
-                        alert("Coś poszło nie tak :(");
-                    }
-                } catch (error) {
-                    console.log(error);
+    
+        // Sprawdzanie aspect ratio
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.src = URL.createObjectURL(file);
+            img.onload = async () => {
+                const aspectRatioValid = checkAspectRatio(img.width, img.height);
+                if (!aspectRatioValid) {
+                    alert('Nieprawidłowe proporcje obrazka. Upewnij się, że obrazek ma proporcje od 4:5 do 1.91:1.');
+                    return;
                 }
-            }
-        } else {
-            console.error('Upload failed.')
-        }
-    }
+    
+                // Kontynuowanie przesyłania
+                const { name, type } = file;
+                const res = await fetch(`/api/upload-url?file=${encodeURIComponent(name)}&fileType=${encodeURIComponent(type)}`);
+                const { url, fields } = await res.json();
+    
+                const formData = new FormData();
+                Object.entries({ ...fields, file }).forEach(([key, value]) => formData.append(key, value));
+    
+                const uploadRes = await fetch(url, { method: 'POST', body: formData });
+                if (!uploadRes.ok) {
+                    console.error('Upload failed.');
+                    reject(new Error('Upload failed'));
+                    return;
+                }
+    
+                console.log('Uploaded successfully!');
+                const imageUrl = `https://${url.split('/')[3]}.${url.split('/')[2]}/${encodeURIComponent(name)}`;
+                setImage(imageUrl);
+                setImageUrl(imageUrl);
+    
+                if (session?.user?.name) {
+                    try {
+                        const response = await axios.post('api/linkedinImgCall', {
+                            accessToken: session.user.accessToken,
+                            userId: session.user.id,
+                            img: imageUrl,
+                        });
+                        console.log(JSON.stringify(response.data));
+                        if (response.status === 200) {
+                            const assetId = response.data.assetID.slice(1, -1);
+                            setImage(assetId);
+                            console.log(assetId);
+                            resolve();
+                        } else {
+                            alert('Coś poszło nie tak :(');
+                            reject(new Error('API call failed'));
+                        }
+                    } catch (error) {
+                        console.error(error);
+                        reject(error);
+                    }
+                }
+            };
+        });
+    };
+    
 
 
     return (
