@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useSession } from "next-auth/react";
 import { useRouter } from 'next/router';
 import {
@@ -19,25 +19,65 @@ import {
 import { DateTimePicker } from '@mantine/dates';
 import { IconCheck, IconUpload, IconX } from '@tabler/icons-react';
 import axios from 'axios';
-import { set } from 'react-hook-form';
 
 export default function Home() {
     const { data: session } = useSession();
+    const router = useRouter();
+
     const [text, setText] = useState('');
     const [result, setResult] = useState('');
     const [time, setTime] = useState(0);
     const [date, setDate] = useState(new Date());
     const [image, setImage] = useState('');
     const [imageUrl, setImageUrl] = useState('');
-    const [loading, setLoading] = useState(false);
     const [notification, setNotification] = useState(null);
     const [provider, setProvider] = useState(session?.user.name ? 'linkedin' : 'instagram');
-    const router = useRouter();
+    const [loading, setLoading] = useState(false);
+
+    if (!session?.user) {
+        return <div>Zaloguj się, aby korzystać z tej strony.</div>;
+    }
+
+    const askFunction = async (prompt) => {
+        setLoading(true);
+        setNotification(null);
+        setResult("");
+
+        const response = await fetch("/api/generate", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                prompt,
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error(response.statusText);
+        }
+
+        const data = response.body;
+        if (!data) {
+            return;
+        }
+        const reader = data.getReader();
+        const decoder = new TextDecoder();
+        let done = false;
+
+        while (!done) {
+            const { value, done: doneReading } = await reader.read();
+            done = doneReading;
+            const chunkValue = decoder.decode(value);
+            setResult(prev => prev + chunkValue);
+        }
+
+        setLoading(false);
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
-        setNotification(null);
+        await askFunction(text);
 
         const data = {
             accessToken: session?.user.accessToken,
@@ -50,12 +90,10 @@ export default function Home() {
             provider,
             imageUrl: imageUrl || undefined,
         };
-
-        const endpoint = "api/uQStashCall?platform="+provider;
+        const endpoint = "api/uQStashCall?platform=" + provider;
 
         try {
             const response = await axios.post(endpoint, data);
-            setLoading(false);
             if (response.status === 200) {
                 setNotification(
                     <Notification
@@ -70,19 +108,9 @@ export default function Home() {
                     router.push('/calendar');
                 }, 2000);
             } else {
-                setNotification(
-                    <Notification
-                        title="Failure"
-                        color="red"
-                        icon={<IconX size="1.1rem" />}
-                    >
-                        Wystąpił błąd podczas przesyłania.
-                    </Notification>
-                );
+                throw new Error("Server responded with non-OK status");
             }
         } catch (error) {
-            setLoading(false);
-            console.log(error);
             setNotification(
                 <Notification
                     title="Error"
@@ -94,107 +122,71 @@ export default function Home() {
         }
     };
 
-    const ask = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        const data = {
-            prompt: text,
-        };
-        try {
-            const response = await axios.post('/api/gptCall', data, {
-                headers: {
-                    'Content-Type': 'text/event-stream',
-                },
-                responseType: 'stream', 
-            });
-    
-            // Handle the streaming response
-            const reader = response.data
-                .pipeThrough(new TextDecoderStream())
-                .getReader();
-            let accumulatedResponse = '';
-            while (true) {
-                const { value, done } = await reader.read();
-                if (done) break;
-                console.log('Received:', value);
-                accumulatedResponse += value;
-                setResult(accumulatedResponse);
-            }
-            setLoading(false);
-        } catch (error) {
-            console.log(error);
-            ask(e);
-        }
+    const fetchUploadUrl = async (name, type) => {
+        const response = await fetch(`/api/upload-url?file=${encodeURIComponent(name)}&fileType=${encodeURIComponent(type)}`);
+        if (!response.ok) throw new Error('Failed to fetch upload URL.');
+        return await response.json();
     };
+
+    const uploadToServer = async (url, fields, file) => {
+        const formData = new FormData();
+        Object.entries({ ...fields, file }).forEach(([key, value]) => formData.append(key, value));
+        const response = await fetch(url, { method: 'POST', body: formData });
+        if (!response.ok) throw new Error('Failed to upload image.');
+    };
+
+    const postImageToLinkedIn = async (session, imageUrl) => {
+        if (!session?.user?.name) return;
+        const response = await axios.post('api/linkedinImgCall', {
+            accessToken: session.user.accessToken,
+            userId: session.user.id,
+            img: imageUrl,
+        });
+        if (response.status !== 200) throw new Error('API call to LinkedIn failed.');
+        return response.data.assetID.slice(1, -1);
+    };
+
 
     const checkAspectRatio = (width, height) => {
         const aspectRatio = width / height;
         return aspectRatio >= (4 / 5) && aspectRatio <= 1.91;
     };
-    
+
     const uploadPhoto = async (file) => {
-        if (!file) {
-            return;
-        }
-    
-        // Sprawdzanie aspect ratio
-        return new Promise((resolve, reject) => {
+        if (!file) return;
+
+        return new Promise(async (resolve, reject) => {
+            // Sprawdzanie aspect ratio
             const img = new Image();
             img.src = URL.createObjectURL(file);
             img.onload = async () => {
                 const aspectRatioValid = checkAspectRatio(img.width, img.height);
                 if (!aspectRatioValid) {
                     alert('Nieprawidłowe proporcje obrazka. Upewnij się, że obrazek ma proporcje od 4:5 do 1.91:1.');
+                    reject(new Error('Invalid aspect ratio.'));
                     return;
                 }
-    
-                // Kontynuowanie przesyłania
-                const { name, type } = file;
-                const res = await fetch(`/api/upload-url?file=${encodeURIComponent(name)}&fileType=${encodeURIComponent(type)}`);
-                const { url, fields } = await res.json();
-    
-                const formData = new FormData();
-                Object.entries({ ...fields, file }).forEach(([key, value]) => formData.append(key, value));
-    
-                const uploadRes = await fetch(url, { method: 'POST', body: formData });
-                if (!uploadRes.ok) {
-                    console.error('Upload failed.');
-                    reject(new Error('Upload failed'));
-                    return;
-                }
-    
-                console.log('Uploaded successfully!');
-                const imageUrl = `https://${url.split('/')[3]}.${url.split('/')[2]}/${encodeURIComponent(name)}`;
-                setImage(imageUrl);
-                setImageUrl(imageUrl);
-    
-                if (session?.user?.name) {
-                    try {
-                        const response = await axios.post('api/linkedinImgCall', {
-                            accessToken: session.user.accessToken,
-                            userId: session.user.id,
-                            img: imageUrl,
-                        });
-                        console.log(JSON.stringify(response.data));
-                        if (response.status === 200) {
-                            const assetId = response.data.assetID.slice(1, -1);
-                            setImage(assetId);
-                            console.log(assetId);
-                            resolve();
-                        } else {
-                            alert('Coś poszło nie tak :(');
-                            reject(new Error('API call failed'));
-                        }
-                    } catch (error) {
-                        console.error(error);
-                        reject(error);
-                    }
+                try {
+                    const { name, type } = file;
+                    const { url, fields } = await fetchUploadUrl(name, type);
+
+                    await uploadToServer(url, fields, file);
+
+                    const imageUrl = `https://${url.split('/')[3]}.${url.split('/')[2]}/${encodeURIComponent(name)}`;
+                    setImage(imageUrl);
+                    setImageUrl(imageUrl);
+
+                    const assetId = await postImageToLinkedIn(session, imageUrl);
+                    setImage(assetId);
+                    resolve();
+
+                } catch (error) {
+                    console.error(error);
+                    reject(error);
                 }
             };
         });
     };
-    
-
 
     return (
         <Container size={700}>
@@ -211,28 +203,28 @@ export default function Home() {
                                 maxRows={5}
                                 value={text}
                                 onChange={e => setText(e.target.value)}
+                                multiline
+                                required
                             />
                             <Space h="md" />
-                            <Button onClick={ask} fullWidth={true}>Zapytaj</Button>
+                            <Button onClick={() => askFunction(text)} fullWidth={true}>Zapytaj</Button>
                             <Space h="xl" />
-                            {loading ? (
+                            <Textarea
+                                label="Wygenerowany tekst"
+                                placeholder={"Tutaj pojawi się wygenerowany tekst"}
+                                autosize
+                                minRows={5}
+                                maxRows={10}
+                                value={result}
+                                onChange={e => setResult(e.target.value)}
+                            />
+                            {loading && (
                                 <LoadingOverlay
                                     visible={loading}
                                     opacity={0.9}
                                     color="gray"
                                     zIndex={1000}
                                     loader={<Loader />}
-                                >
-                                </LoadingOverlay>
-                            ) : (
-                                <Textarea
-                                    label="Wygenerowany tekst"
-                                    placeholder={"Tutaj pojawi się wygenerowany tekst"}
-                                    autosize
-                                    minRows={5}
-                                    maxRows={10}
-                                    value={result}
-                                    onChange={e => setResult(e.target.value)}
                                 />
                             )}
                             <Space h="md" />
@@ -240,9 +232,7 @@ export default function Home() {
                                 label="Prześlij zdjęcie (.png lub .jpg, max 1MB)"
                                 placeholder={"Wybierz zdjęcie"}
                                 icon={<IconUpload size={rem(14)} />}
-                                onChange={(file) => {
-                                    uploadPhoto(file);
-                                }}
+                                onInput={(files) => uploadPhoto(files[0])}
                                 accept={['image/png', 'image/jpeg']}
                             />
                             <Space h="md" />
