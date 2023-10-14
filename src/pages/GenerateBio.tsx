@@ -30,6 +30,7 @@ export const generateBio = async (e: any, prompt: string, setGeneratedBios: any,
         const { value, done: doneReading } = await reader.read();
         done = doneReading;
         const chunkValue = decoder.decode(value);
+        console.log(chunkValue);
         setGeneratedBios((prev: any) => prev + chunkValue);
     }
 
