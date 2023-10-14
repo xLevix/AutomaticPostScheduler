@@ -93,7 +93,7 @@ export default function Home() {
         const promptData = { prompt: e }; // Update with appropriate prompt value
 
         const response = await fetch(
-            'http://localhost:3000/api/gptCall',
+            '/api/gptCall',
             {
                 method: 'POST',
                 headers: {
