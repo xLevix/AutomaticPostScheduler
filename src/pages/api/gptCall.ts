@@ -12,12 +12,13 @@ const handler = nc<NextApiRequest, NextApiResponse>({
     },
 });
 
-function addDummyFlush(req, res, next) {
-    res.flush = () => {}; 
+function addFlushSupport(req, res, next) {
+    res.flush = res.flush || (() => {}); 
     next();
 }
 
-handler.use(addDummyFlush);
+handler.use(addFlushSupport);
+
 
 handler.use(cors({ 
     origin: '*',
@@ -80,23 +81,23 @@ handler.post(async (req, res) => {
         for (const payload of payloads) {
             if (payload.includes('[DONE]')) {
                 res.write(`event: done\ndata: {}\n\n`);
-                res.flush();
+                res.flush && res.flush();
                 res.end();
                 return;
             }
             processPayload(payload, res);
         }
-    }
+    }  
     
     function processPayload(payload, res) {
         if (!payload.startsWith('data:')) return;
-
+    
         const data = JSON.parse(payload.replace('data: ', ''));
         try {
             const text = data.choices[0].delta?.content;
             if (text) {
                 res.write(`data: ${JSON.stringify({ content: text })}\n\n`);
-                res.flush();
+                res.flush && res.flush();
             }
         } catch (error) {
             console.error(`Error with JSON.parse and ${payload}.\n${error}`);
