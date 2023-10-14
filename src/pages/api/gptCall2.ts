@@ -2,17 +2,18 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import nc from 'next-connect';
 import axios from 'axios';
 import cors from 'cors';
+import { createParser, ParsedEvent } from 'eventsource-parser';
 
 const handler = nc<NextApiRequest, NextApiResponse>({
     onError(error, req, res) {
-      res.status(500).end(`Something went wrong: ${error.message}`);
+        res.status(500).end(`Something went wrong: ${error.message}`);
     },
     onNoMatch(req, res) {
-      res.status(405).end(`Method ${req.method} Not Allowed`);
+        res.status(405).end(`Method ${req.method} Not Allowed`);
     },
 });
 
-handler.use(cors({ 
+handler.use(cors({
     origin: '*',
     methods: ['GET', 'HEAD', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -67,43 +68,44 @@ handler.post(async (req, res) => {
     res.setHeader('Connection', 'keep-alive');
     res.flushHeaders();
 
-    function handleData(chunk, res) {
-        const payloads = chunk.toString().split('\n\n');
-        for (const payload of payloads) {
-            if (payload.includes('[DONE]')) {
-                res.write(`event: done\ndata: \n\n`);
-                res.flush();
-                res.end();
-                return;
-            }
-            processPayload(payload, res);
+    const onParse = (event: ParsedEvent) => {
+        if (event.type === 'event') {
+            const eventData = event.data;
+            processPayload(eventData, res);
         }
     }
-    
-    function processPayload(payload, res) {
-        if (!payload.startsWith('data:')) return;
-    
-        const data = JSON.parse(payload.replace('data: ', ''));
+
+    const parser = createParser(onParse);
+
+    function processPayload(payload: string, res) {
         try {
+            const data = JSON.parse(payload);
             const text = data.choices[0].delta?.content;
             if (text) {
                 res.write(`data: ${text}\n\n`);
                 res.flush();
             }
+            if (payload === "[DONE]") {
+                res.write(`event: done\ndata: \n\n`);
+                res.flush();
+                res.end();
+            }
         } catch (error) {
             console.error(`Error with JSON.parse and ${payload}.\n${error}`);
         }
     }
-    
-    openaiAxios.post('chat/completions', data, { responseType: 'stream' })
-    .then((response) => {
-        const onData = (chunk) => handleData(chunk, res);
-        response.data.on('data', onData);
 
-        // Clean up event listeners when the response ends or closes.
-        response.data.on('end', () => response.data.removeListener('data', onData));
-        response.data.on('close', () => response.data.removeListener('data', onData));
-    })
+    openaiAxios.post('chat/completions', data, { responseType: 'stream' })
+        .then((response) => {
+            response.data.on('data', (chunk) => {
+                const textChunk = chunk.toString();
+                parser.feed(textChunk);
+            });
+        })
+        .catch((error) => {
+            console.error('Error when calling OpenAI:', error.response?.data);
+            res.status(500).json({ message: 'Internal Server Error', error: error.message });
+        });
 });
 
 export default handler;
