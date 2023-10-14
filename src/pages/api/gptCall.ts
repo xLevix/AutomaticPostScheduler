@@ -39,7 +39,7 @@ handler.post(async (req, res) => {
     requestTimestamps = requestTimestamps.filter(timestamp => now - timestamp < rateLimitWindowMs);
 
     if (requestTimestamps.length >= maxRequestsPerWindow) {
-        res.status(429).json({ message: 'Rate limit exceeded. Please try again later.' });
+        res.status(429).end("Rate limit exceeded. Please try again later.");
         return;
     }
 
@@ -71,7 +71,7 @@ handler.post(async (req, res) => {
         const payloads = chunk.toString().split('\n\n');
         for (const payload of payloads) {
             if (payload.includes('[DONE]')) {
-                res.write(`event: done\ndata: \n\n`);
+                res.write(`event: done\ndata: {}\n\n`);
                 res.flush();
                 res.end();
                 return;
@@ -82,12 +82,12 @@ handler.post(async (req, res) => {
     
     function processPayload(payload, res) {
         if (!payload.startsWith('data:')) return;
-    
+
         const data = JSON.parse(payload.replace('data: ', ''));
         try {
             const text = data.choices[0].delta?.content;
             if (text) {
-                res.write(`data: ${text}\n\n`);
+                res.write(`data: ${JSON.stringify({ content: text })}\n\n`);
                 res.flush();
             }
         } catch (error) {
@@ -96,14 +96,13 @@ handler.post(async (req, res) => {
     }
     
     openaiAxios.post('chat/completions', data, { responseType: 'stream' })
-    .then((response) => {
-        const onData = (chunk) => handleData(chunk, res);
-        response.data.on('data', onData);
-
-        // Clean up event listeners when the response ends or closes.
-        response.data.on('end', () => response.data.removeListener('data', onData));
-        response.data.on('close', () => response.data.removeListener('data', onData));
-    })
+        .then((response) => {
+            response.data.on('data', (chunk) => handleData(chunk, res));
+        })
+        .catch((error) => {
+            console.error('Error when calling OpenAI:', error.response?.data);
+            res.status(500).end(`Internal Server Error: ${error.message}`);
+        });
 });
 
 export default handler;

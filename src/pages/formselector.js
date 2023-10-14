@@ -72,49 +72,6 @@ const handleSubmit = async (e) => {
     }
 };
 
-const useAsk = (initialText = '', setSSEActive) => {
-    const [text, setText] = useState(initialText);
-    const [loading, setLoading] = useState(false);
-    const [result, setResult] = useState('');
-
-    const askFunction = useCallback(async (promptText) => {
-        setLoading(true);
-        const data = {
-            prompt: promptText,
-        };
-        try {
-            console.log('Sending payload:', promptText);
-
-            const response = await axios.post('/api/gptCall2', data, {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                responseType: 'arraybuffer',
-            });
-
-            setSSEActive(true);
-
-            let decodedResponse;
-            if (response.data instanceof ArrayBuffer) {
-                const decoder = new TextDecoder();
-                decodedResponse = decoder.decode(response.data);
-            } else {
-                const encoder = new TextEncoder();
-                const arrayBuffer = encoder.encode(response.data);
-                const decoder = new TextDecoder();
-                decodedResponse = decoder.decode(arrayBuffer);
-            }
-            setResult(decodedResponse);
-            setLoading(false);
-        } catch (error) {
-            console.log(error);
-            setResult("Wystąpił błąd podczas pytania. Proszę spróbować ponownie.");
-        }
-    }, [setSSEActive]);
-
-    return { text, setText, askFunction, loading, result, setResult };
-};
-
 export default function Home() {
     const { data: session } = useSession();
     const [time, setTime] = useState(0);
@@ -124,59 +81,66 @@ export default function Home() {
     const [notification, setNotification] = useState(null);
     const [provider, setProvider] = useState(session?.user.name ? 'linkedin' : 'instagram');
     const router = useRouter();
-
-    const [sseActive, setSSEActive] = useState(false);
-    const { text, setText, askFunction, loading, result, setResult } = useAsk('', setSSEActive);
-
-    useEffect(() => {
-        let eventSource;
-        
-        if (sseActive) {
-            eventSource = new EventSource('/api/gptCall');
-        
-            eventSource.onmessage = (event) => {
-                console.log("SSE data received:", event.data); // Debug
-                const newText = event.data;
-                if (newText) {
-                    setResult(prevText => prevText + newText);
-                }
-            };
-        
-            eventSource.onerror = (error) => {
-                console.error("EventSource failed:", error);
-                if (eventSource.readyState === EventSource.CLOSED) {
-                    console.log("Connection was closed.");
-                } else {
-                    console.log("An error occurred.");
-                }
-                eventSource.close();
-            };
-        }
-        
-        return () => {
-            if (eventSource) {
-                eventSource.close();
-            }
-        };
-    }, [sseActive, setResult]);
+    const [text, setText] = useState('');
+    const [result, setResult] = useState('');
+    const [loading, setLoading] = useState(false);
 
     if (!session?.user) {
         return <div>Zaloguj się, aby korzystać z tej strony.</div>;
     }
-    
+
+    const askFunction = async (e) => {
+        const promptData = { prompt: e }; // Update with appropriate prompt value
+
+        const response = await fetch(
+            'http://localhost:3000/api/gptCall',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(promptData)
+            }
+        );
+
+        const reader = response.body
+            .pipeThrough(new TextDecoderStream())
+            .getReader()
+        while (true) {
+            const { value: chunk, done } = await reader.read();
+            if (done) break;
+
+            const messages = chunk.split('\n\n');
+            for (let message of messages) {
+                if (message.startsWith('data: ')) {
+                    const possibleJson = message.replace('data: ', '');
+                    try {
+                        const jsonData = JSON.parse(possibleJson);
+                        if (jsonData.content) {
+                            setResult((prev) => prev + jsonData.content);
+                        }
+                    } catch (error) {
+                        console.error('Error parsing JSON:', error.message);
+                        console.log('Faulty data:', possibleJson);
+                    }
+                }
+            }
+        }
+    }
+
     const fetchUploadUrl = async (name, type) => {
         const response = await fetch(`/api/upload-url?file=${encodeURIComponent(name)}&fileType=${encodeURIComponent(type)}`);
         if (!response.ok) throw new Error('Failed to fetch upload URL.');
         return await response.json();
     };
-    
+
     const uploadToServer = async (url, fields, file) => {
         const formData = new FormData();
         Object.entries({ ...fields, file }).forEach(([key, value]) => formData.append(key, value));
         const response = await fetch(url, { method: 'POST', body: formData });
         if (!response.ok) throw new Error('Failed to upload image.');
     };
-    
+
     const postImageToLinkedIn = async (session, imageUrl) => {
         if (!session?.user?.name) return;
         const response = await axios.post('api/linkedinImgCall', {
@@ -187,7 +151,7 @@ export default function Home() {
         if (response.status !== 200) throw new Error('API call to LinkedIn failed.');
         return response.data.assetID.slice(1, -1);
     };
-    
+
 
     const checkAspectRatio = (width, height) => {
         const aspectRatio = width / height;
@@ -196,7 +160,7 @@ export default function Home() {
 
     const uploadPhoto = async (file) => {
         if (!file) return;
-    
+
         return new Promise(async (resolve, reject) => {
             // Sprawdzanie aspect ratio
             const img = new Image();
@@ -211,17 +175,17 @@ export default function Home() {
                 try {
                     const { name, type } = file;
                     const { url, fields } = await fetchUploadUrl(name, type);
-    
+
                     await uploadToServer(url, fields, file);
-    
+
                     const imageUrl = `https://${url.split('/')[3]}.${url.split('/')[2]}/${encodeURIComponent(name)}`;
                     setImage(imageUrl);
                     setImageUrl(imageUrl);
-    
+
                     const assetId = await postImageToLinkedIn(session, imageUrl);
                     setImage(assetId);
                     resolve();
-    
+
                 } catch (error) {
                     console.error(error);
                     reject(error);
