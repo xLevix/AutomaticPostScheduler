@@ -6,7 +6,7 @@ export async function OpenAIStream(payload) {
 
     let counter = 0;
 
-    const res = await fetch("https://api.openai.com/v1/completions", {
+    const res = await fetch("https://api.openai.com/v1/chat/completions", {
         headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${process.env.OPENAI_API_KEY ?? ""}`,
@@ -24,20 +24,27 @@ export async function OpenAIStream(payload) {
                         controller.close();
                         return;
                     }
+
                     try {
                         const json = JSON.parse(data);
-                        const text = json.choices[0].text;
-                        if (counter < 2 && (text.match(/\n/) || []).length) {
-                            return;
+                        console.log("Received data:", json);
+                        const choices = json.choices;
+                        if (choices.length > 0) {
+                            const delta = choices[0].delta;
+                            // Dodajemy dodatkowe sprawdzenie tutaj
+                            if (delta && delta.content && (counter >= 2 || delta.content.match(/\n/))) {
+                                const queue = encoder.encode(delta.content);
+                                controller.enqueue(queue);
+                                counter++;
+                            }
                         }
-                        const queue = encoder.encode(text);
-                        controller.enqueue(queue);
-                        counter++;
                     } catch (e) {
                         controller.error(e);
                     }
+
                 }
             }
+
 
             // stream response (SSE) from OpenAI may be fragmented into multiple chunks
             // this ensures we properly read chunks & invoke an event for each SSE event stream
