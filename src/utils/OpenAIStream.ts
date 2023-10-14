@@ -1,4 +1,4 @@
-import { createParser, ParsedEvent, ReconnectInterval } from "eventsource-parser";
+import {createParser, ParsedEvent, ReconnectInterval} from "eventsource-parser";
 
 export async function OpenAIStream(payload) {
     const encoder = new TextEncoder();
@@ -15,7 +15,7 @@ export async function OpenAIStream(payload) {
         body: JSON.stringify(payload),
     });
 
-    const stream = new ReadableStream({
+    return new ReadableStream({
         async start(controller) {
             function onParse(event: ParsedEvent | ReconnectInterval) {
                 if (event.type === "event") {
@@ -51,6 +51,4 @@ export async function OpenAIStream(payload) {
             }
         },
     });
-
-    return stream;
 }

@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useSession } from "next-auth/react";
 import { useRouter } from 'next/router';
 import {
@@ -19,114 +19,108 @@ import {
 import { DateTimePicker } from '@mantine/dates';
 import { IconCheck, IconUpload, IconX } from '@tabler/icons-react';
 import axios from 'axios';
-import { useEffect } from 'react';
-
-
-const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setNotification(null);
-
-    const data = {
-        accessToken: session?.user.accessToken,
-        text: result,
-        userId: session?.user.id,
-        delay: time,
-        img: image || undefined,
-        date,
-        title: text,
-        provider,
-        imageUrl: imageUrl || undefined,
-    };
-    const endpoint = "api/uQStashCall?platform=" + provider;
-
-    try {
-        const response = await axios.post(endpoint, data);
-        setLoading(false);
-        if (response.status === 200) {
-            setNotification(
-                <Notification
-                    title="Success"
-                    color="teal"
-                    icon={<IconCheck size="1.1rem" />}
-                >
-                    Wiadomość została dodana do kolejki.
-                </Notification>
-            );
-            setTimeout(() => {
-                router.push('/calendar');
-            }, 2000);
-        } else {
-            throw new Error("Server responded with non-OK status");
-        }
-    } catch (error) {
-        setLoading(false);
-        setNotification(
-            <Notification
-                title="Error"
-                message="Wystąpił błąd podczas przesyłania."
-                color="red"
-                icon={<IconX size="1.1rem" />}
-            />
-        );
-    }
-};
 
 export default function Home() {
     const { data: session } = useSession();
+    const router = useRouter();
+
+    const [text, setText] = useState('');
+    const [result, setResult] = useState('');
     const [time, setTime] = useState(0);
     const [date, setDate] = useState(new Date());
     const [image, setImage] = useState('');
     const [imageUrl, setImageUrl] = useState('');
     const [notification, setNotification] = useState(null);
     const [provider, setProvider] = useState(session?.user.name ? 'linkedin' : 'instagram');
-    const router = useRouter();
-    const [text, setText] = useState('');
-    const [result, setResult] = useState('');
     const [loading, setLoading] = useState(false);
 
     if (!session?.user) {
         return <div>Zaloguj się, aby korzystać z tej strony.</div>;
     }
 
-    const askFunction = async (e) => {
-        const promptData = { prompt: e }; // Update with appropriate prompt value
+    const askFunction = async (prompt) => {
+        setLoading(true);
+        setNotification(null);
+        setResult("");
 
-        const response = await fetch(
-            '/api/gptCall',
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(promptData)
-            }
-        );
+        const response = await fetch("/api/generate", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                prompt,
+            }),
+        });
 
-        const reader = response.body
-            .pipeThrough(new TextDecoderStream())
-            .getReader()
-        while (true) {
-            const { value: chunk, done } = await reader.read();
-            if (done) break;
-
-            const messages = chunk.split('\n\n');
-            for (let message of messages) {
-                if (message.startsWith('data: ')) {
-                    const possibleJson = message.replace('data: ', '');
-                    try {
-                        const jsonData = JSON.parse(possibleJson);
-                        if (jsonData.content) {
-                            setResult((prev) => prev + jsonData.content);
-                        }
-                    } catch (error) {
-                        console.error('Error parsing JSON:', error.message);
-                        console.log('Faulty data:', possibleJson);
-                    }
-                }
-            }
+        if (!response.ok) {
+            throw new Error(response.statusText);
         }
-    }
+
+        const data = response.body;
+        if (!data) {
+            return;
+        }
+        const reader = data.getReader();
+        const decoder = new TextDecoder();
+        let done = false;
+
+        while (!done) {
+            const { value, done: doneReading } = await reader.read();
+            done = doneReading;
+            const chunkValue = decoder.decode(value);
+            setResult(prev => prev + chunkValue);
+        }
+
+        setLoading(false);
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        await askFunction(text);
+
+        const data = {
+            accessToken: session?.user.accessToken,
+            text: result,
+            userId: session?.user.id,
+            delay: time,
+            img: image || undefined,
+            date,
+            title: text,
+            provider,
+            imageUrl: imageUrl || undefined,
+        };
+        const endpoint = "api/uQStashCall?platform=" + provider;
+
+        try {
+            const response = await axios.post(endpoint, data);
+            if (response.status === 200) {
+                setNotification(
+                    <Notification
+                        title="Success"
+                        color="teal"
+                        icon={<IconCheck size="1.1rem" />}
+                    >
+                        Wiadomość została dodana do kolejki.
+                    </Notification>
+                );
+                setTimeout(() => {
+                    router.push('/calendar');
+                }, 2000);
+            } else {
+                throw new Error("Server responded with non-OK status");
+            }
+        } catch (error) {
+            setNotification(
+                <Notification
+                    title="Error"
+                    message="Wystąpił błąd podczas przesyłania."
+                    color="red"
+                    icon={<IconX size="1.1rem" />}
+                />
+            );
+        }
+    };
 
     const fetchUploadUrl = async (name, type) => {
         const response = await fetch(`/api/upload-url?file=${encodeURIComponent(name)}&fileType=${encodeURIComponent(type)}`);
