@@ -10,8 +10,9 @@ const handler = async (req: Request): Promise<Response> => {
     };
 
     const payload = {
-        model: "gpt-3.5-turbo",
+        model: "gpt-3.5-turbo-instruct",
         prompt,
+        max_tokens: 2048,
         stream: true
     };
 

@@ -3,9 +3,6 @@ import nc from 'next-connect';
 import axios from 'axios';
 import cors from 'cors';
 
-export const config = {
-    runtime: "edge",
-};
 
 const handler = nc<NextApiRequest, NextApiResponse>({
     onError(error, req, res) {
@@ -52,6 +49,7 @@ handler.post(async (req, res) => {
     const { prompt } = req.body;
     const data = {
         model: "gpt-3.5-turbo",
+        max_tokens: 2048,
         messages: [
             {
                 role: "system",
