@@ -29,12 +29,12 @@ export async function OpenAIStream(payload) {
                         console.log("Received data:", json);
 
                         const text = json.choices[0].delta.content;
-                        if (counter < 2 && (text.match(/\n/) || []).length) {
-                            return;
+                        const hasNewLine = (text.match(/\n/) || []).length > 0;
+                        if (counter >= 2 || !hasNewLine) {
+                            const queue = encoder.encode(text);
+                            controller.enqueue(queue);
+                            counter++;
                         }
-                        const queue = encoder.encode(text);
-                        controller.enqueue(queue);
-                        counter++;
                     } catch (e) {
                         controller.error(e);
                     }
