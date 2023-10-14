@@ -3,7 +3,6 @@ import nc from 'next-connect';
 import axios from 'axios';
 import cors from 'cors';
 
-
 const handler = nc<NextApiRequest, NextApiResponse>({
     onError(error, req, res) {
       res.status(500).end(`Something went wrong: ${error.message}`);
@@ -12,6 +11,13 @@ const handler = nc<NextApiRequest, NextApiResponse>({
       res.status(405).end(`Method ${req.method} Not Allowed`);
     },
 });
+
+function addDummyFlush(req, res, next) {
+    res.flush = () => {}; 
+    next();
+}
+
+handler.use(addDummyFlush);
 
 handler.use(cors({ 
     origin: '*',
