@@ -3,6 +3,10 @@ import nc from 'next-connect';
 import axios from 'axios';
 import cors from 'cors';
 
+export const config = {
+    runtime: "edge",
+};
+
 const handler = nc<NextApiRequest, NextApiResponse>({
     onError(error, req, res) {
       res.status(500).end(`Something went wrong: ${error.message}`);
