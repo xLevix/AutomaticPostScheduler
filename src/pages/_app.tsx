@@ -3,10 +3,16 @@ import { MantineProvider } from '@mantine/core';
 import {HeaderResponsive} from "../components/Header";
 import React, { useEffect } from "react";
 import axios from 'axios';
-import { Session } from "next-auth";
+import { Session, User } from "next-auth";
 
-interface ExtendedSession extends Session {
+interface ExtendedUser extends User {
+    id: string;
+}
+
+export interface ExtendedSession extends Session {
     provider?: string;
+    user?: ExtendedUser;
+    accessToken?: string;
 }
 
 function HeaderWithSession() {
