@@ -54,6 +54,7 @@ export default NextAuth({
         async jwt({ token, user, account }) {
             if (account) {
                 token.accessToken = account.access_token;
+                token.provider = account.provider;
             }
 
             if(user?.username){
@@ -74,6 +75,8 @@ export default NextAuth({
             return {
                 ...session,
                 accessToken: token.accessToken,
+                provider: token.provider,
+
             };
         },
     }
