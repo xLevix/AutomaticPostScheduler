@@ -14,7 +14,10 @@ import {
     rem,
     Group,
     LoadingOverlay,
-    Space
+    Space,
+    Text,
+    Progress,
+    Card
 } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
 import { IconCheck, IconUpload, IconX } from '@tabler/icons-react';
@@ -188,6 +191,10 @@ export default function Home() {
         });
     };
 
+    const characterCount = result.length;
+    const characterLimit = 3000;
+    const charactersRemaining = characterLimit - characterCount;
+
     return (
         <Container size={700}>
             {notification}
@@ -228,6 +235,25 @@ export default function Home() {
                                 />
                             )}
                             <Space h="md" />
+                            <Card withBorder radius="md" padding="xl" bg="var(--mantine-color-body)">
+                                <Text fz="xs" tt="uppercase" fw={700} c="dimmed">
+                                    Limit znaków
+                                </Text>
+                                <Text fz="lg" fw={500}>
+                                    {characterCount} / {characterLimit}
+                                </Text>
+                                <Progress
+                                    value={(characterCount / characterLimit) * 100}
+                                    mt="md"
+                                    size="lg"
+                                    radius="xl"
+                                    styles={{
+                                        bar: {
+                                            backgroundColor: characterCount > 2000 ? (characterCount > 3000 ? 'red' : 'yellow') : 'green'
+                                        }
+                                    }}
+                                />
+                            </Card>
                             <FileInput
                                 label="Prześlij zdjęcie (.png lub .jpg, max 1MB)"
                                 placeholder={"Wybierz zdjęcie"}
@@ -248,7 +274,7 @@ export default function Home() {
                                 }}
                             />
                             <Space h="md" />
-                            <Button fullWidth={true} type="submit">Send</Button>
+                            <Button fullWidth={true} type="submit" disabled={charactersRemaining < 0}>Send</Button>
                         </form>
                     </Paper>
                 </Col>
