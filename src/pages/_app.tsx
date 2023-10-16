@@ -1,7 +1,8 @@
-import { SessionProvider, useSession } from "next-auth/react"
+import { SessionProvider, useSession, signOut } from "next-auth/react";
 import { MantineProvider } from '@mantine/core';
 import {HeaderResponsive} from "../components/Header";
-import React from "react";
+import React, { useEffect } from "react";
+import axios from 'axios';
 
 function HeaderWithSession() {
     const { data: session } = useSession();
@@ -19,6 +20,50 @@ function HeaderWithSession() {
             ];
         }
     }, [session]);
+
+    function setLastCheckTime() {
+    const now = new Date().getTime();
+    localStorage.setItem('lastTokenCheck', now.toString());
+    }
+
+    function getLastCheckTime() {
+    const time = localStorage.getItem('lastTokenCheck');
+    return time ? parseInt(time, 10) : null;
+    }
+
+    function shouldCheckTokenValidity() {
+    const TEN_MINUTES = 10 * 60 * 1000;
+    const lastCheckTime = getLastCheckTime();
+
+    if (!lastCheckTime) {
+        return true;
+    }
+
+    const now = new Date().getTime();
+
+    return now - lastCheckTime > TEN_MINUTES;
+    }
+  
+    useEffect(() => {
+        if (session && shouldCheckTokenValidity()) {
+            axios.post('/api/validateToken', {
+                provider: session.provider,
+                username: session.user.id,
+                accessToken: session.accessToken
+            })
+            .then(response => {
+                if (response.data.valid === false) {
+                    signOut();
+                } else {
+                    setLastCheckTime();
+                }
+            })
+            .catch(error => {
+                console.error('Błąd podczas sprawdzania ważności tokena:', error);
+            });
+        }
+    }, [session]);
+
     return <HeaderResponsive links={tabs} />;
 }
 
@@ -40,5 +85,5 @@ export default function App({
                 <Component {...pageProps} />
             </MantineProvider>
         </SessionProvider>
-    )
+    );
 }
