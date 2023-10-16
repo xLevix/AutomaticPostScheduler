@@ -3,9 +3,15 @@ import { MantineProvider } from '@mantine/core';
 import {HeaderResponsive} from "../components/Header";
 import React, { useEffect } from "react";
 import axios from 'axios';
+import { Session } from "next-auth";
+
+interface ExtendedSession extends Session {
+    provider?: string;
+}
 
 function HeaderWithSession() {
-    const { data: session } = useSession();
+    const { data: session } = useSession() as { data: ExtendedSession };
+
 
     const tabs = React.useMemo(() => {
         if (session) {
@@ -43,7 +49,7 @@ function HeaderWithSession() {
 
     return now - lastCheckTime > TEN_MINUTES;
     }
-  
+
     useEffect(() => {
         if (session && shouldCheckTokenValidity()) {
             axios.post('/api/validateToken', {
