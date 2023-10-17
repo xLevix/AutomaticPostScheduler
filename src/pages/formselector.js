@@ -96,10 +96,8 @@ export default function Home() {
         const endpoint = "api/uQStashCall";
 
         try {
-            console.log("Przed postem: ", data)
             const response = await axios.post(endpoint, data);
             if (response.status === 200) {
-                console.log("Po poście: ", response.data);
                 setNotification(
                     <Notification
                         title="Success"
