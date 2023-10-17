@@ -22,7 +22,7 @@ function HeaderWithSession() {
     const tabs = React.useMemo(() => {
         if (session) {
             return [
-                { label: "Add Post", link: "/formauto" },
+                { label: "Add Post", link: "/formselector" },
                 { label: "Calendar", link: "/calendar" },
                 { label: "Logout", link: "/api/auth/signout" },
             ];

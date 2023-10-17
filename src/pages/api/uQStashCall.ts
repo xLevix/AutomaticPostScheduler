@@ -37,7 +37,7 @@ const handleData = (body, platform: 'linkedin' | 'instagram' | 'twitter'): DataP
 
 const handler = nc<NextApiRequest, NextApiResponse>()
     .post(async (req, res) => {
-        const platform: 'linkedin' | 'instagram' | 'twitter' = req.query.platform as any;
+        const platform: 'linkedin' | 'instagram' | 'twitter' = req.body.platform;
 
         if (!platform || !endpoints[platform]) {
             return res.status(400).json({ message: 'Invalid platform' });
@@ -67,7 +67,9 @@ const handler = nc<NextApiRequest, NextApiResponse>()
                 text: req.body.text,
                 delay: req.body.delay,
                 title: req.body.title,
-                date: req.body.date
+                date: req.body.date,
+                imgUrl: req.body.imageUrl,
+                messageId: response.data.messageId,
             };
 
             const mongoConfig = {

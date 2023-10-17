@@ -36,6 +36,7 @@ export default function Home() {
     const [notification, setNotification] = useState(null);
     const [provider, setProvider] = useState(session?.user.name ? 'linkedin' : 'instagram');
     const [loading, setLoading] = useState(false);
+    const [selectedFile, setSelectedFile] = useState(null);
 
     if (!session?.user) {
         return <div>Zaloguj się, aby korzystać z tej strony.</div>;
@@ -80,7 +81,6 @@ export default function Home() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        await askFunction(text);
 
         const data = {
             accessToken: session?.user.accessToken,
@@ -90,14 +90,16 @@ export default function Home() {
             img: image || undefined,
             date,
             title: text,
-            provider,
+            platform: session?.provider,
             imageUrl: imageUrl || undefined,
         };
-        const endpoint = "api/uQStashCall?platform=" + provider;
+        const endpoint = "api/uQStashCall";
 
         try {
+            console.log("Przed postem: ", data)
             const response = await axios.post(endpoint, data);
             if (response.status === 200) {
+                console.log("Po poście: ", response.data);
                 setNotification(
                     <Notification
                         title="Success"
@@ -152,43 +154,68 @@ export default function Home() {
 
     const checkAspectRatio = (width, height) => {
         const aspectRatio = width / height;
-        return aspectRatio >= (4 / 5) && aspectRatio <= 1.91;
+        return aspectRatio >= 4 / 5 && aspectRatio <= 1.91;
     };
 
     const uploadPhoto = async (file) => {
         if (!file) return;
-
-        return new Promise(async (resolve, reject) => {
-            // Sprawdzanie aspect ratio
+    
+        if (file.size > 1024 * 1024) {
+            alert("Plik jest zbyt duży. Maksymalny rozmiar pliku to 1MB.");
+            setImage(''); 
+            setImageUrl('');
+            setSelectedFile(null); 
+            return;
+        }
+        
+        try {
             const img = new Image();
             img.src = URL.createObjectURL(file);
-            img.onload = async () => {
-                const aspectRatioValid = checkAspectRatio(img.width, img.height);
-                if (!aspectRatioValid) {
-                    alert('Nieprawidłowe proporcje obrazka. Upewnij się, że obrazek ma proporcje od 4:5 do 1.91:1.');
-                    reject(new Error('Invalid aspect ratio.'));
-                    return;
-                }
-                try {
-                    const { name, type } = file;
-                    const { url, fields } = await fetchUploadUrl(name, type);
-
-                    await uploadToServer(url, fields, file);
-
-                    const imageUrl = `https://${url.split('/')[3]}.${url.split('/')[2]}/${encodeURIComponent(name)}`;
-                    setImage(imageUrl);
-                    setImageUrl(imageUrl);
-
-                    const assetId = await postImageToLinkedIn(session, imageUrl);
-                    setImage(assetId);
-                    resolve();
-
-                } catch (error) {
-                    console.error(error);
-                    reject(error);
-                }
-            };
-        });
+    
+            await new Promise((resolve, reject) => {
+                img.onload = () => {
+                    const aspectRatioValid = checkAspectRatio(img.width, img.height);
+                    if (!aspectRatioValid) {
+                        alert("Nieprawidłowe proporcje obrazka. Upewnij się, że obrazek ma proporcje od 4:5 do 1.91:1.");
+                        setImage(''); 
+                        setImageUrl(''); 
+                        setSelectedFile(null); 
+                        return;
+                    } else {
+                        resolve();
+                    }
+                };
+    
+                img.onerror = () => {
+                    reject(new Error("Failed to load image."));
+                };
+            });
+    
+            const { name, type } = file;
+            const { url, fields } = await fetchUploadUrl(name, type);
+    
+            const formData = new FormData();
+            Object.entries({ ...fields, file }).forEach(([key, value]) =>
+                formData.append(key, value)
+            );
+    
+            const response = await fetch(url, { method: "POST", body: formData });
+            if (!response.ok) throw new Error("Failed to upload image.");
+    
+            const imageUrl = `https://${url.split("/")[3]}.${url.split("/")[2]}/${encodeURIComponent(
+                name
+            )}`;
+            console.log("Uploaded image URL: ", imageUrl);
+            setImage(imageUrl);
+            setImageUrl(imageUrl);
+    
+            const assetId = await postImageToLinkedIn(session, imageUrl);
+            setImage(assetId);
+        } catch (error) {
+            console.error(error);
+            setImage('');
+            setImageUrl('');
+        }
     };
 
     const characterCount = result.length;
@@ -258,7 +285,11 @@ export default function Home() {
                                 label="Prześlij zdjęcie (.png lub .jpg, max 1MB)"
                                 placeholder={"Wybierz zdjęcie"}
                                 icon={<IconUpload size={rem(14)} />}
-                                onInput={(files) => uploadPhoto(files[0])}
+                                onChange={(file) => {
+                                    setSelectedFile(file);  // Aktualizuj wartość wybranego pliku
+                                    uploadPhoto(file);
+                                }}
+                                value={selectedFile}
                                 accept={['image/png', 'image/jpeg']}
                             />
                             <Space h="md" />
