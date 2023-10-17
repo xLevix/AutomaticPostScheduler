@@ -7,7 +7,7 @@ const BadgeCard = ({ postData }) => {
     <Container size={700}>
     <Card shadow="sm" padding="lg" radius="md" withBorder >
       <Card.Section>
-        <Image src={imgUrl} height={160} alt={title} />
+        <Image src={imgUrl} alt={title} objectFit="contain" />
       </Card.Section>
 
       <Group justify="space-between" mt="md" mb="xs">
