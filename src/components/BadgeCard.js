@@ -1,8 +1,8 @@
 import { Card, Image, Text, Badge, Button, Group, Container } from '@mantine/core';
 
-const BadgeCard = ({ postData }) => {
+const BadgeCard = ({ postData, onDelete }) => {
   const { imgUrl, title, text, date, messageId } = postData;
-
+  const isPostPublished = new Date(date) <= new Date();
   return (
     <Container size={700}>
     <Card shadow="sm" padding="lg" radius="md" withBorder >
@@ -21,9 +21,17 @@ const BadgeCard = ({ postData }) => {
         {text}
       </Text>
 
-      <Button variant="light" color="red" fullWidth mt="md" radius="md">
-        Delete planned post
-      </Button>
+      <Button
+          variant="light"
+          color="red"
+          fullWidth
+          mt="md"
+          radius="md"
+          onClick={onDelete}
+          disabled={isPostPublished || postData.isDeleted}
+        >
+          {postData.isDeleted ? 'Post został usunięty' : (isPostPublished ? 'Post został opublikowany' : 'Delete planned post')}
+        </Button>
     </Card>
     </Container>
   );
