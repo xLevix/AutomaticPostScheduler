@@ -22,6 +22,26 @@ const handler = nc<NextApiRequest, NextApiResponse>()
         const { db } = await connectToDatabase();
         const posts = await db.collection("UserPosts").insertOne(req.body);
         res.status(200).json({ success: true, data: posts });
+    })
+
+    .put(async (req, res) => {
+        const { db } = await connectToDatabase();
+        const { messageId } = req.body;
+
+        if (!messageId) {
+            return res.status(400).json({ success: false, message: "No messageId provided." });
+        }
+
+        const updateResult = await db.collection("UserPosts").updateOne(
+            { messageId },
+            { $set: { isDeleted: true } }
+        );
+
+        if (updateResult.modifiedCount === 0) {
+            return res.status(404).json({ success: false, message: "Post not found." });
+        }
+
+        res.status(200).json({ success: true, message: "Post updated successfully." });
     });
 
 export default handler;

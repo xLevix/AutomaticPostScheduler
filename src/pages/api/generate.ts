@@ -6,6 +6,7 @@ export const config = {
 
 const handler = async (req) => {
     const { prompt } = await req.json();
+    console.log("prompt", prompt);
     const payload = {
         model: "gpt-3.5-turbo",
         max_tokens: 2048,
