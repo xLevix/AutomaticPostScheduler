@@ -5,7 +5,7 @@ import image from '../../public/404.svg';
 export default function NotFoundImage() {
   return (
     <Container className={classes.root}>
-      <SimpleGrid spacing={{ base: 40, sm: 80 }} cols={{ base: 1, sm: 2 }}>
+      <SimpleGrid>
         <Image src={image.src} className={classes.mobileImage} />
         <div>
           <Title className={classes.title}>Something is not right...</Title>
