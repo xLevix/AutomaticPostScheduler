@@ -7,11 +7,13 @@ import {
     Burger,
     Paper,
     Transition,
+    Image,
     rem,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { MantineLogo } from '@mantine/ds';
+import logo2 from '../../public/logo2.png';
 import {useRouter} from "next/router";
+import { MantineLogo } from '@mantine/ds';
 
 const HEADER_HEIGHT = rem(60);
 
@@ -114,6 +116,7 @@ export function HeaderResponsive({ links }: HeaderResponsiveProps | null) {
         <Header height={HEADER_HEIGHT} mb={120} className={classes.root}>
     <Container className={classes.header}>
     <MantineLogo size={28} />
+    <Image src={logo2.src} alt="Automatyczne Harmonogramowanie Postów" width={logo2.width * 0.15} />
     <Group spacing={5} className={classes.links}>
         {items}
         </Group>
