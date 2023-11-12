@@ -4,11 +4,21 @@ import nc from 'next-connect';
 const handler = nc<NextApiRequest, NextApiResponse>()
     .post((req, res) => {
         const { accessToken, text, img } = req.body;
+        console.log("Otrzymano dane: " + req.body);
 
         var axios = require('axios');
         var data = JSON.stringify({
             text: text,
         });
+
+        if(img){
+            data = JSON.stringify({
+                text: text,
+                media: {
+                    media_ids: [img]
+                }
+            });
+        }
 
         var config = {
             method: 'post',
@@ -17,7 +27,6 @@ const handler = nc<NextApiRequest, NextApiResponse>()
             headers: {
                 'X-Restli-Protocol-Version': '2.0.0',
                 'Content-Type': 'application/json',
-                'LinkedIn-Version': '202301',
                 'Authorization': `Bearer ${accessToken}`,
             },
             data : data

@@ -5,8 +5,6 @@ import { Image } from '@mantine/core';
 import Link from 'next/link';
 import {useSession} from "next-auth/react";
 
-
-
 const useStyles = createStyles((theme) => ({
     header: {
         display: 'flex',

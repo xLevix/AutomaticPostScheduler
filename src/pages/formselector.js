@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState } from 'react';
 import { useSession } from "next-auth/react";
 import { useRouter } from 'next/router';
 import {
@@ -12,7 +12,6 @@ import {
     Notification,
     Col,
     rem,
-    Group,
     LoadingOverlay,
     Space,
     Text,
@@ -34,14 +33,10 @@ export default function Home() {
     const [image, setImage] = useState('');
     const [imageUrl, setImageUrl] = useState('');
     const [notification, setNotification] = useState(null);
-    const [provider, setProvider] = useState(session?.user.name ? 'linkedin' : 'instagram');
     const [loading, setLoading] = useState(false);
     const [selectedFile, setSelectedFile] = useState(null);
 
-    if (!session?.user) {
-        return <div>Zaloguj się, aby korzystać z tej strony.</div>;
-    }
-
+    console.log(session);
     const askFunction = async (prompt) => {
         setLoading(true);
         setNotification(null);
@@ -131,13 +126,6 @@ export default function Home() {
         return await response.json();
     };
 
-    const uploadToServer = async (url, fields, file) => {
-        const formData = new FormData();
-        Object.entries({ ...fields, file }).forEach(([key, value]) => formData.append(key, value));
-        const response = await fetch(url, { method: 'POST', body: formData });
-        if (!response.ok) throw new Error('Failed to upload image.');
-    };
-
     const postImageToLinkedIn = async (session, imageUrl) => {
         if (!session?.user?.name) return;
         const response = await axios.post('api/linkedinImgCall', {
@@ -149,6 +137,18 @@ export default function Home() {
         return response.data.assetID.slice(1, -1);
     };
 
+    const postImageToTwitter = async (session, imageUrl) => {
+        if (!session?.user?.name) return;
+    
+        const response = await axios.post('api/twitterImgCall', {
+            accessToken: session.user.accessToken,
+            img: imageUrl,
+            additionalOwners: session.user.id,
+        });
+    
+        if (response.status !== 200) throw new Error('API call to Twitter failed.');
+        return response.data.mediaId;
+    };    
 
     const checkAspectRatio = (width, height) => {
         const aspectRatio = width / height;
@@ -207,8 +207,14 @@ export default function Home() {
             setImage(imageUrl);
             setImageUrl(imageUrl);
     
-            const assetId = await postImageToLinkedIn(session, imageUrl);
-            setImage(assetId);
+            if (session?.provider === 'twitter') {
+                const mediaId = await postImageToTwitter(session, imageUrl);
+                setImage(mediaId);
+            } else if (session?.provider === 'linkedin') {
+                const assetId = await postImageToLinkedIn(session, imageUrl);
+                setImage(assetId);
+            }
+            console.log("Uploaded image ID: ", image);
         } catch (error) {
             console.error(error);
             setImage('');
