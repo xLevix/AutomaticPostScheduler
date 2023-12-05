@@ -10,7 +10,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "build-start": "next build && next start"
+    "build-start": "next build && next start",
+    "test": "jest"
   },
   "dependencies": {
     "@emotion/react": "^11.10.8",
@@ -44,7 +45,6 @@
     "aws-cdk-lib": "^2.70.0",
     "aws-s3": "^2.0.5",
     "aws-sdk": "^2.1344.0",
-    "axios": "^1.3.4",
     "cookies": "^0.8.0",
     "cors": "^2.8.5",
     "dayjs": "^1.11.7",
@@ -66,7 +66,17 @@
     "twitter-api-v2": "^1.15.2"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.23.5",
+    "@babel/preset-typescript": "^7.23.3",
+    "@types/jest": "^29.5.10",
+    "@types/nock": "^11.1.0",
     "@types/node": "18.15.0",
-    "@types/react": "18.0.28"
+    "@types/react": "18.0.28",
+    "axios": "^1.6.2",
+    "babel-jest": "^29.7.0",
+    "jest": "^29.7.0",
+    "nock": "^13.4.0",
+    "node-mocks-http": "^1.13.0",
+    "ts-jest": "^29.1.1"
   }
 }
