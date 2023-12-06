@@ -4,9 +4,10 @@ import nc from 'next-connect';
 const handler = nc<NextApiRequest, NextApiResponse>()
     .post((req, res) => {
         const { accessToken, text, userId, img } = req.body;
+        console.log('Request body:', req.body);
 
-        var axios = require('axios');
-        var data = JSON.stringify({
+        let axios = require('axios');
+        let data = JSON.stringify({
             "author": `urn:li:person:${userId}`,
             "commentary": `${text}`,
             "visibility": "PUBLIC",
@@ -41,7 +42,7 @@ const handler = nc<NextApiRequest, NextApiResponse>()
 
         }
 
-        var config = {
+        let config = {
             method: 'post',
             maxBodyLength: Infinity,
             url: 'https://api.linkedin.com/rest/posts',
@@ -56,11 +57,11 @@ const handler = nc<NextApiRequest, NextApiResponse>()
 
         axios(config)
             .then(function (response) {
-                console.log(JSON.stringify(response.data));
+                console.log('Axios response:', response.data);
                 res.status(200).json({ message: 'Post created' });
             })
             .catch(function (error) {
-                console.log(error);
+                console.error('Axios error:', error);
                 res.status(500).json({ message: 'Post not created', error: error });
             });
 
