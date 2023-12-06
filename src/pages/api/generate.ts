@@ -9,6 +9,14 @@ const handler = async (req) => {
     console.log("prompt", prompt);
     console.log("provider", provider);
 
+    if (!prompt) {
+        throw new Error('Prompt is not provided');
+    }
+
+    if (!['linkedin', 'twitter', 'credentials', 'instagram'].includes(provider)) {
+        throw new Error('Provider is not supported');
+    }
+
     let systemMessage = "You are assistant writing posts to social media like Instagram, Twitter, and Linkedin. Write the post in the language that user asked the question. Limit your post to a maximum of 2200 characters; it can be less if you want.";
 
     if (provider === 'linkedin') {
@@ -36,6 +44,9 @@ const handler = async (req) => {
     };
 
     const stream = await OpenAIStream(payload);
+    if (!(stream instanceof ReadableStream)) {
+        throw new Error('OpenAIStream did not return a ReadableStream');
+    }
     return new Response(stream);
 };
 
