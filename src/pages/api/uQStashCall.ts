@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import nc from 'next-connect';
 import axios from 'axios';
+import {ObjectId} from "mongodb";
 
 interface DataPayload {
     accessToken: string;
@@ -17,10 +18,11 @@ const endpoints = {
     twitter: 'twitterCall',
 };
 
-const handleData = (body, platform: 'linkedin' | 'instagram' | 'twitter'): DataPayload => {
+const handleData = (body, platform: 'linkedin' | 'instagram' | 'twitter', objectId): DataPayload => {
     const data: DataPayload = {
         accessToken: body.accessToken,
         text: body.text,
+        objectId: objectId,
     };
 
     if (body.img) data.img = body.img;
@@ -43,7 +45,8 @@ const handler = nc<NextApiRequest, NextApiResponse>()
             return res.status(400).json({ message: 'Invalid platform' });
         }
 
-        const dataToSend = handleData(req.body, platform);
+        const objectId = new ObjectId();
+        const dataToSend = handleData(req.body, platform, objectId);
         const config = {
             method: 'post',
             maxBodyLength: Infinity,
@@ -70,6 +73,7 @@ const handler = nc<NextApiRequest, NextApiResponse>()
                 date: req.body.date,
                 imgUrl: req.body.imageUrl,
                 messageId: response.data.messageId,
+                _id: objectId,
             };
 
             const mongoConfig = {

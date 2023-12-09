@@ -3,7 +3,7 @@ import nc from 'next-connect';
 
 const handler = nc<NextApiRequest, NextApiResponse>()
     .post((req, res) => {
-        const { accessToken, text, userId, img } = req.body;
+        const { accessToken, text, userId, img, objectId } = req.body;
         console.log('Request body:', req.body);
 
         let axios = require('axios');

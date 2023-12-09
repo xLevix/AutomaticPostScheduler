@@ -5,7 +5,7 @@ import puppeteer from 'puppeteer';
 const handler = nc<NextApiRequest, NextApiResponse>()
     .post(async (req, res) => {
             const { postId } = req.body;
-            const linkedinUrl = 'https://www.linkedin.com/feed/update/urn:li:activity:';
+            const linkedinUrl = 'https://www.linkedin.com/feed/update/urn:li:activity:'+postId;
             const browser = await puppeteer.launch({ headless: true });
             const page = await browser.newPage();
             await page.setCookie({
