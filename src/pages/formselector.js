@@ -16,7 +16,8 @@ import {
     Space,
     Text,
     Progress,
-    Card
+    Card,
+    Switch
 } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
 import { IconCheck, IconUpload, IconX } from '@tabler/icons-react';
@@ -35,6 +36,7 @@ export default function Home() {
     const [notification, setNotification] = useState(null);
     const [loading, setLoading] = useState(false);
     const [selectedFile, setSelectedFile] = useState(null);
+    const [hideResult, setHideResult] = useState(false);
 
     console.log(session);
     const askFunction = async (prompt) => {
@@ -49,6 +51,7 @@ export default function Home() {
             },
             body: JSON.stringify({
                 prompt,
+                provider: session?.provider,
             }),
         });
 
@@ -177,8 +180,7 @@ export default function Home() {
                         alert("Nieprawidłowe proporcje obrazka. Upewnij się, że obrazek ma proporcje od 4:5 do 1.91:1.");
                         setImage(''); 
                         setImageUrl(''); 
-                        setSelectedFile(null); 
-                        return;
+                        setSelectedFile(null);
                     } else {
                         resolve();
                     }
@@ -222,9 +224,26 @@ export default function Home() {
         }
     };
 
+    let characterLimit = 3000;
+    let warningThreshold = 0.8;
+
+    if (session?.provider === 'twitter') {
+        characterLimit = 280;
+    } else if (session?.provider === 'credentials') {
+        characterLimit = 2200;
+    }
+
     const characterCount = result.length;
-    const characterLimit = 3000;
     const charactersRemaining = characterLimit - characterCount;
+    const progress = (characterCount / characterLimit) * 100;
+
+    let progressColor = 'green';
+    if (progress > warningThreshold * 100) {
+        progressColor = 'yellow';
+    }
+    if (progress > 100) {
+        progressColor = 'red';
+    }
 
     return (
         <Container size={700}>
@@ -247,7 +266,14 @@ export default function Home() {
                             <Space h="md" />
                             <Button onClick={() => askFunction(text)} fullWidth={true}>Zapytaj</Button>
                             <Space h="xl" />
-                            <Textarea
+                            <Switch
+                                checked={hideResult}
+                                onChange={() => setHideResult(!hideResult)}
+                                label="Zaskocz mnie :) !"
+                            />
+                            <Space h="md" />
+                            {hideResult ? null : (
+                                <Textarea
                                 label="Wygenerowany tekst"
                                 placeholder={"Tutaj pojawi się wygenerowany tekst"}
                                 autosize
@@ -256,6 +282,7 @@ export default function Home() {
                                 value={result}
                                 onChange={e => setResult(e.target.value)}
                             />
+                            )}
                             {loading && (
                                 <LoadingOverlay
                                     visible={loading}
@@ -280,7 +307,7 @@ export default function Home() {
                                     radius="xl"
                                     styles={{
                                         bar: {
-                                            backgroundColor: characterCount > 2000 ? (characterCount > 3000 ? 'red' : 'yellow') : 'green'
+                                            backgroundColor: progressColor
                                         }
                                     }}
                                 />
