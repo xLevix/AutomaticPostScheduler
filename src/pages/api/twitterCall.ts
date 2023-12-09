@@ -34,8 +34,7 @@ const handler = nc<NextApiRequest, NextApiResponse>()
 
         axios(config)
             .then(function (response) {
-                console.log("Axios response: " + response.data);
-                res.status(200).json({ message: 'Post created' });
+                res.status(200).json({ message: 'PostId:' + response.data });
             })
             .catch(function (error) {
                 console.log(error);
