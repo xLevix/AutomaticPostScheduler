@@ -18,7 +18,7 @@ const endpoints = {
     twitter: 'twitterCall',
 };
 
-const handleData = (body, platform: 'linkedin' | 'instagram' | 'twitter', objectId): DataPayload => {
+const handleData = (body, platform: 'linkedin' | 'instagram' | 'twitter' | 'credentials', objectId): DataPayload => {
     const data: DataPayload = {
         accessToken: body.accessToken,
         text: body.text,
@@ -39,7 +39,7 @@ const handleData = (body, platform: 'linkedin' | 'instagram' | 'twitter', object
 
 const handler = nc<NextApiRequest, NextApiResponse>()
     .post(async (req, res) => {
-        const platform: 'linkedin' | 'instagram' | 'twitter' = req.body.platform;
+        const platform: 'linkedin' | 'instagram' | 'twitter' | 'credentials' = req.body.platform;
 
         if (!platform || !endpoints[platform]) {
             return res.status(400).json({ message: 'Invalid platform' });
