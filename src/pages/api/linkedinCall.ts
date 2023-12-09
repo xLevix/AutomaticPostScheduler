@@ -4,7 +4,6 @@ import nc from 'next-connect';
 const handler = nc<NextApiRequest, NextApiResponse>()
     .post((req, res) => {
         const { accessToken, text, userId, img, objectId } = req.body;
-        console.log('Request body:', req.body);
 
         let axios = require('axios');
         let data = JSON.stringify({
@@ -57,6 +56,7 @@ const handler = nc<NextApiRequest, NextApiResponse>()
 
         axios(config)
             .then(function (response) {
+                console.log("Response: " + response.data);
                 res.status(200).json({ message: 'PostId: '+ response.data });
             })
             .catch(function (error) {

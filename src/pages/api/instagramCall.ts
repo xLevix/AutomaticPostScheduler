@@ -25,6 +25,7 @@ const handler = nc<NextApiRequest, NextApiResponse>()
             });
 
             if (JSON.stringify(publishResult)) {
+                console.log("Response: " + publishResult.upload_id);
                 res.status(200).json('PostId: ' + publishResult.upload_id);
             } else {
                 res.status(500).json("Failed to publish");
