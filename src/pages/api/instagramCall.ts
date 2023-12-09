@@ -24,9 +24,8 @@ const handler = nc<NextApiRequest, NextApiResponse>()
                 caption: desc,
             });
 
-            console.log("Axios response: " + JSON.stringify(publishResult));
             if (JSON.stringify(publishResult)) {
-                res.status(200).json(JSON.stringify(publishResult));
+                res.status(200).json('PostId: ' + publishResult.upload_id);
             } else {
                 res.status(500).json("Failed to publish");
             }
