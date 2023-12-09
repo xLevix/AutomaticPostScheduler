@@ -26,16 +26,22 @@ const handler = nc<NextApiRequest, NextApiResponse>()
 
     .put(async (req, res) => {
         const { db } = await connectToDatabase();
-        const { messageId } = req.body;
+        const { messageId, objectId, postId } = req.body;
 
-        if (!messageId) {
-            return res.status(400).json({ success: false, message: "No messageId provided." });
+        let filter = {};
+        let update = {};
+
+        if (messageId) {
+            filter = { messageId };
+            update = { $set: { isDeleted: true } };
+        } else if (objectId && postId) {
+            filter = { _id: objectId };
+            update = { $set: { postId } };
+        } else {
+            return res.status(400).json({ success: false, message: "Invalid query parameters" });
         }
 
-        const updateResult = await db.collection("UserPosts").updateOne(
-            { messageId },
-            { $set: { isDeleted: true } }
-        );
+        const updateResult = await db.collection("UserPosts").updateOne(filter, update);
 
         if (updateResult.modifiedCount === 0) {
             return res.status(404).json({ success: false, message: "Post not found." });

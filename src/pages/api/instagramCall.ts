@@ -6,7 +6,7 @@ import {get} from "request-promise";
 const handler = nc<NextApiRequest, NextApiResponse>()
     .post(async (req, res) => {
 
-        const { userId:username, accessToken:password, text:desc, img } = req.body;
+        const { userId:username, accessToken:password, text:desc, img, objectId } = req.body;
 
         const ig = new IgApiClient();
         ig.state.generateDevice(username);
@@ -24,7 +24,7 @@ const handler = nc<NextApiRequest, NextApiResponse>()
                 caption: desc,
             });
 
-            console.log(publishResult);
+            console.log("Axios response: " + JSON.stringify(publishResult));
             if (JSON.stringify(publishResult)) {
                 res.status(200).json(JSON.stringify(publishResult));
             } else {
