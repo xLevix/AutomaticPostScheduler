@@ -16,6 +16,7 @@ const endpoints = {
     linkedin: 'linkedinCall',
     instagram: 'instagramCall',
     twitter: 'twitterCall',
+    credentials: 'instagramCall',
 };
 
 const handleData = (body, platform: 'linkedin' | 'instagram' | 'twitter' | 'credentials', objectId): DataPayload => {
