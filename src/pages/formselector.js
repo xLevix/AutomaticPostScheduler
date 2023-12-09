@@ -38,7 +38,6 @@ export default function Home() {
     const [selectedFile, setSelectedFile] = useState(null);
     const [hideResult, setHideResult] = useState(false);
 
-    console.log(session);
     const askFunction = async (prompt) => {
         setLoading(true);
         setNotification(null);
