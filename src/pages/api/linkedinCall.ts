@@ -56,8 +56,8 @@ const handler = nc<NextApiRequest, NextApiResponse>()
 
         axios(config)
             .then(function (response) {
-                console.log("Response: " + response.data);
-                res.status(200).json({ message: 'PostId: '+ response.data });
+                console.log("Response: " + response);
+                res.status(200).json({ message: 'PostId: '+ response });
             })
             .catch(function (error) {
                 console.error('Axios error:', error);
