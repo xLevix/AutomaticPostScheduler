@@ -36,10 +36,8 @@ const handler = nc<NextApiRequest, NextApiResponse>()
         axios(config)
             .then(async function (response) {
                 const postId = response.data.data.id;
-                console.log("INFO", objectId, postId);
-                const updateResponse = await axios.put('https://automatic-post-scheduler.vercel.app/api/getMongo', {objectId, postId});
-                console.log("INFO2", updateResponse);
-                res.status(200).json({PostId: +postId, DatabaseUpdate: updateResponse});
+                const updateResponse = await addPostIdToDb(objectId, postId)
+                res.status(200).json({PostId: +postId, DatabaseUpdate: updateResponse.data});
             })
             .catch(function (error) {
                 console.log(error);
