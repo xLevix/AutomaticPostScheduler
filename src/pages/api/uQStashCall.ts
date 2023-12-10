@@ -46,7 +46,7 @@ const handler = nc<NextApiRequest, NextApiResponse>()
             return res.status(400).json({ message: 'Invalid platform' });
         }
 
-        const objectId = new ObjectId();
+        const objectId = new ObjectId().toString();
         const dataToSend = handleData(req.body, platform, objectId);
         const config = {
             method: 'post',
@@ -62,9 +62,6 @@ const handler = nc<NextApiRequest, NextApiResponse>()
 
         try {
             const response = await axios(config);
-            console.log(JSON.stringify(response.data));
-            res.status(200).json({ message: 'Post created' });
-
             const mongoData = {
                 userId: req.body.userId || req.body.username,
                 img: req.body.img,
@@ -89,7 +86,7 @@ const handler = nc<NextApiRequest, NextApiResponse>()
 
             const mongoResponse = await axios(mongoConfig);
             console.log(JSON.stringify(mongoResponse.data));
-
+            res.status(200).json({ success: true, data: mongoResponse.data, response: response.data.messageId });
         } catch (error) {
             console.log(error);
             res.status(500).json({ message: 'Post not created' });
