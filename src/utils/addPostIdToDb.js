@@ -3,7 +3,7 @@ import axios from 'axios';
 const addPostIdToDb = async (objectId, postId) => {
     let putConfig = {
         method: 'put',
-        url: 'api/getMongo',
+        url: '/api/getMongo',
         headers: {
             'Content-Type': 'application/json'
         },
