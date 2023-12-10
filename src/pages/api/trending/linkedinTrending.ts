@@ -2,6 +2,7 @@ import axios from 'axios';
 import cheerio from 'cheerio';
 import nc from "next-connect";
 import {NextApiRequest, NextApiResponse} from "next";
+import addTagsToDb from "../../../utils/addTagsToDb";
 
 const handler = nc<NextApiRequest, NextApiResponse>()
     .get(async (req, res) => {
@@ -16,6 +17,7 @@ const handler = nc<NextApiRequest, NextApiResponse>()
                 hashtags.push($(el).text());
             });
 
+            await addTagsToDb('linkedin', 'worldwide', hashtags);
             res.status(200).json({ hashtags });
         } catch (error) {
             res.status(500).json({ error: 'Error fetching data' });
