@@ -35,6 +35,7 @@ const handler = nc<NextApiRequest, NextApiResponse>()
         axios(config)
             .then(async function (response) {
                 const postId = response.data.data.id;
+                console.log("INFO", objectId, postId);
                 const updateResponse = await addPostIdToDb(objectId, postId);
                 res.status(200).json({PostId: + postId, DatabaseUpdate: updateResponse});
             })
