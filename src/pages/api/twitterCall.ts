@@ -37,7 +37,7 @@ const handler = nc<NextApiRequest, NextApiResponse>()
             .then(async function (response) {
                 const postId = response.data.data.id;
                 console.log("INFO", objectId, postId);
-                const updateResponse = await axios.put('/api/getMongo', {objectId, postId});
+                const updateResponse = await axios.put('http://localhost:3000/api/getMongo', {objectId, postId});
                 console.log("INFO2", updateResponse);
                 res.status(200).json({PostId: +postId, DatabaseUpdate: updateResponse});
             })
