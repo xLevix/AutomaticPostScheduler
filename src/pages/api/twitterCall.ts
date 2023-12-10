@@ -1,12 +1,13 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import nc from 'next-connect';
+import addPostIdToDb from "../../utils/addPostIdToDb";
 
 const handler = nc<NextApiRequest, NextApiResponse>()
     .post((req, res) => {
         const { accessToken, text, img, objectId } = req.body;
 
-        var axios = require('axios');
-        var data = JSON.stringify({
+        const axios = require('axios');
+        let data = JSON.stringify({
             text: text,
         });
 
@@ -19,7 +20,7 @@ const handler = nc<NextApiRequest, NextApiResponse>()
             });
         }
 
-        var config = {
+        let config = {
             method: 'post',
             maxBodyLength: Infinity,
             url: 'https://api.twitter.com/2/tweets',
@@ -32,9 +33,10 @@ const handler = nc<NextApiRequest, NextApiResponse>()
         };
 
         axios(config)
-            .then(function (response) {
-                console.log("Response: " + response.data.data)
-                res.status(200).json({ message: 'PostId:' + response.data.data });
+            .then(async function (response) {
+                const postId = response.data.data.id;
+                const updateResponse = await addPostIdToDb(objectId, postId);
+                res.status(200).json({PostId: + postId, DatabaseUpdate: updateResponse});
             })
             .catch(function (error) {
                 console.log(error);

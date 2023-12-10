@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import nc from 'next-connect';
+import addPostIdToDb from "../../utils/addPostIdToDb";
 
 const handler = nc<NextApiRequest, NextApiResponse>()
     .post((req, res) => {
@@ -55,9 +56,11 @@ const handler = nc<NextApiRequest, NextApiResponse>()
         };
 
         axios(config)
-            .then(function (response) {
-                console.log("Response: " + response);
-                res.status(200).json({ message: 'PostId: '+ response });
+            .then(async function (response) {
+                const restliIdHeader = response.headers['x-restli-id'];
+                const postId = restliIdHeader.split(':').pop();
+                const updateResponse = await addPostIdToDb(objectId, postId);
+                res.status(200).json({PostId: +postId, DatabaseUpdate: updateResponse});
             })
             .catch(function (error) {
                 console.error('Axios error:', error);
