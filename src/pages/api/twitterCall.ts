@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import nc from 'next-connect';
 import addPostIdToDb from "../../utils/addPostIdToDb";
+import axios from "axios";
 
 const handler = nc<NextApiRequest, NextApiResponse>()
     .post((req, res) => {
@@ -36,8 +37,9 @@ const handler = nc<NextApiRequest, NextApiResponse>()
             .then(async function (response) {
                 const postId = response.data.data.id;
                 console.log("INFO", objectId, postId);
-                const updateResponse = await addPostIdToDb(objectId, postId);
-                res.status(200).json({PostId: + postId, DatabaseUpdate: updateResponse});
+                const updateResponse = await axios.put('/api/getMongo', {objectId, postId});
+                console.log("INFO2", updateResponse);
+                res.status(200).json({PostId: +postId, DatabaseUpdate: updateResponse});
             })
             .catch(function (error) {
                 console.log(error);
