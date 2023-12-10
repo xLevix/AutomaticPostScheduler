@@ -1,10 +1,13 @@
-import { Card, Image, Text, Badge, Button, Group, Container } from '@mantine/core';
+import {Card, Image, Text, Badge, Button, Group, Container, Grid} from '@mantine/core';
+import StatsGrid from "./StatsGrid";
 
-const BadgeCard = ({ postData, onDelete }) => {
-  const { imgUrl, title, text, date, messageId } = postData;
+const BadgeCard = ({ postData, onDelete, statsData }) => {
+  const { imgUrl, title, text, date } = postData;
   const isPostPublished = new Date(date) <= new Date();
   return (
-    <Container size={700}>
+    <Container size={1200}>
+      <Grid>
+        <Grid.Col span={10}>
     <Card shadow="sm" padding="lg" radius="md" withBorder >
       <Card.Section>
         <Image src={imgUrl} alt={title} objectFit="contain" />
@@ -33,6 +36,11 @@ const BadgeCard = ({ postData, onDelete }) => {
           {postData.isDeleted ? 'Post został usunięty' : (isPostPublished ? 'Post został opublikowany' : 'Delete planned post')}
         </Button>
     </Card>
+        </Grid.Col>
+        <Grid.Col span={2} offset={0}>
+          <StatsGrid statsData={statsData} />
+        </Grid.Col>
+      </Grid>
     </Container>
   );
 };

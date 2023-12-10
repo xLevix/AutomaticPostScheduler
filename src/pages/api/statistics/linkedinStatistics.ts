@@ -16,7 +16,7 @@ const handler = nc<NextApiRequest, NextApiResponse>()
             await page.goto(linkedinUrl, { waitUntil: 'networkidle2' });
             try {
                     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-                    await page.waitForTimeout(3000);
+                    await new Promise(resolve => setTimeout(resolve, 500));
 
                     const reactions = await page.$eval('.social-details-social-counts__reactions-count', (el: HTMLElement) => el.innerText.trim()).catch(() => '0 reakcji');
                     const comments = await page.$eval('.social-details-social-counts__comments', (el: HTMLElement) => el.innerText.trim()).catch(() => '0 komentarzy');

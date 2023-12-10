@@ -14,7 +14,7 @@ const handler = nc<NextApiRequest, NextApiResponse>()
             }
             await page.goto(twitterUrl, { waitUntil: 'networkidle2' });
             try {
-                await page.waitForTimeout(3000);
+                await new Promise(resolve => setTimeout(resolve, 500));
 
                 const comments = await page.$eval('[aria-label*="Reply"]', (el: HTMLElement) => el.innerText.trim()).catch(() => 'Brak danych');
                 const reposts = await page.$eval('[aria-label*="Repost"]', (el: HTMLElement) => el.innerText.trim()).catch(() => 'Brak danych');
