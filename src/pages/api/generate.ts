@@ -1,8 +1,41 @@
+/**
+ * @swagger
+ * /api/generate:
+ *   post:
+ *     summary: Endpoint to generate social media posts.
+ *     description: This endpoint receives a prompt and a provider in the request body. It then generates a social media post based on the prompt and the provider. The provider can be 'linkedin', 'twitter', 'credentials', or 'instagram'. The generated post is returned in the response.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               prompt:
+ *                 type: string
+ *                 description: The prompt based on which the post is to be generated.
+ *               provider:
+ *                 type: string
+ *                 description: The provider for which the post is to be generated.
+ *     responses:
+ *       200:
+ *         description: The post was successfully generated.
+ *       400:
+ *         description: Invalid request body was provided.
+ *       500:
+ *         description: An error occurred and the post was not generated.
+ */
+
 import { OpenAIStream } from "../../utils/OpenAIStream";
 
 export const config = {
     runtime: "edge",
 };
+
+/**
+ * Handler for the /api/generate endpoint.
+ * @param {NextApiRequest} req - The request object.
+ */
 
 const handler = async (req) => {
     const { prompt, provider } = await req.json();

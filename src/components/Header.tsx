@@ -86,8 +86,13 @@ const useStyles = createStyles((theme) => ({
     },
 }));
 
+interface Link {
+    link: string;
+    label: string | JSX.Element;
+}
+
 interface HeaderResponsiveProps {
-    links: { link: string; label: string }[];
+    links: Link[];
 }
 
 export function HeaderResponsive({ links }: HeaderResponsiveProps | null) {
@@ -96,9 +101,9 @@ export function HeaderResponsive({ links }: HeaderResponsiveProps | null) {
     const { classes, cx } = useStyles();
     const router = useRouter();
 
-    const items = links.map((link) => (
+    const items = links.map((link, index) => (
         <a
-            key={link.label}
+            key={index} // use index as a key
     href={link.link}
     className={cx(classes.link, { [classes.linkActive]: active === link.link })}
     onClick={(event) => {

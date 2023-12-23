@@ -1,3 +1,31 @@
+/**
+ * @swagger
+ * /api/twitterImgCall:
+ *   post:
+ *     summary: Endpoint to upload an image to Twitter.
+ *     description: This endpoint receives an image and additional owners (optional) in the request body. It then uploads the image to Twitter using the Twitter API. The media ID of the uploaded image is returned in the response.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               img:
+ *                 type: string
+ *                 description: The image to be uploaded.
+ *               additionalOwners:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: Additional owners of the media.
+ *     responses:
+ *       200:
+ *         description: The image was successfully uploaded and the media ID is returned in the response.
+ *       500:
+ *         description: An error occurred and the image was not uploaded.
+ */
+
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { TwitterApi } from 'twitter-api-v2';
 import axios from 'axios';
@@ -8,6 +36,12 @@ const twitterClient = new TwitterApi({
   accessToken: process.env.TWITTER_ACCESS_TOKEN,
   accessSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
 });
+
+/**
+ * Handler for the /api/twitterImgCall endpoint.
+ * @param {NextApiRequest} req - The request object.
+ * @param {NextApiResponse} res - The response object.
+ */
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { img, additionalOwners } = req.body;

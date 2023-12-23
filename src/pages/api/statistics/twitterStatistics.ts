@@ -1,6 +1,38 @@
+/**
+ * @swagger
+ * /api/statistics/twitterStatistics:
+ *   post:
+ *     summary: Endpoint to retrieve the statistics of a specific Twitter post.
+ *     description: This endpoint receives an account ID and a post ID in the request body. It then logs into Twitter using a stored cookie, and retrieves the comments, reposts, likes, bookmarks, and views of the post with the provided post ID. The statistics are returned in the response.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               accountId:
+ *                 type: string
+ *                 description: The ID of the account whose post's statistics are to be retrieved.
+ *               postId:
+ *                 type: string
+ *                 description: The ID of the post whose statistics are to be retrieved.
+ *     responses:
+ *       200:
+ *         description: The statistics were successfully retrieved.
+ *       500:
+ *         description: An error occurred and the statistics were not retrieved.
+ */
+
 import { NextApiRequest, NextApiResponse } from 'next';
 import nc from 'next-connect';
 import puppeteer from 'puppeteer';
+
+/**
+ * Handler for the /api/statistics/twitterStatistics endpoint.
+ * @param {NextApiRequest} req - The request object.
+ * @param {NextApiResponse} res - The response object.
+ */
 
 const handler = nc<NextApiRequest, NextApiResponse>()
     .post(async (req, res) => {

@@ -1,4 +1,31 @@
+/**
+ * @swagger
+ * /api/OpenAIStream:
+ *   post:
+ *     summary: Function to stream responses from the OpenAI API.
+ *     description: This function receives a payload in the request body. It then sends a POST request to the OpenAI API with the payload. The API's response is streamed back to the client. The function uses the EventSource protocol to parse the streamed data and handle reconnect intervals. It also handles fragmented chunks of data from the API.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             description: The payload to be sent to the OpenAI API.
+ *     responses:
+ *       200:
+ *         description: The data was successfully streamed.
+ *       500:
+ *         description: An error occurred and the data was not streamed.
+ */
+
 import {createParser, ParsedEvent, ReconnectInterval} from "eventsource-parser";
+
+/**
+ * Function to stream responses from the OpenAI API.
+ * @param {object} payload - The payload to be sent to the OpenAI API.
+ * @returns {Promise<ReadableStream>} - A promise that resolves to a ReadableStream of the API's response.
+ * @throws {Error} - Throws an error if there is a problem streaming the data.
+ */
 
 export async function OpenAIStream(payload) {
     const encoder = new TextEncoder();
@@ -40,12 +67,8 @@ export async function OpenAIStream(payload) {
                     }
                 }
             }
-
-            // stream response (SSE) from OpenAI may be fragmented into multiple chunks
-            // this ensures we properly read chunks & invoke an event for each SSE event stream
             const parser = createParser(onParse);
 
-            // https://web.dev/streams/#asynchronous-iteration
             for await (const chunk of res.body as any) {
                 parser.feed(decoder.decode(chunk));
             }

@@ -3,6 +3,55 @@ import nc from 'next-connect';
 import axios from 'axios';
 import {ObjectId} from "mongodb";
 
+/**
+ * @swagger
+ * /api/uQStashCall:
+ *   post:
+ *     summary: Endpoint to schedule posts for different platforms.
+ *     description: This endpoint receives a platform type, access token, text for the post, an image (optional), user ID (optional), and other platform-specific parameters. It then schedules the post for the specified platform using the provided access token and text. If an image is provided, it is included in the post. The ID of the scheduled post is then added to a database.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               platform:
+ *                 type: string
+ *                 description: The platform for which the post is to be scheduled.
+ *               accessToken:
+ *                 type: string
+ *                 description: The access token for the platform API.
+ *               text:
+ *                 type: string
+ *                 description: The text content of the post.
+ *               img:
+ *                 type: string
+ *                 description: The image to be included in the post.
+ *               userId:
+ *                 type: string
+ *                 description: The ID of the user who is scheduling the post.
+ *               delay:
+ *                 type: string
+ *                 description: The delay after which the post should be published.
+ *               title:
+ *                 type: string
+ *                 description: The title of the post.
+ *               date:
+ *                 type: string
+ *                 description: The date when the post should be published.
+ *               imageUrl:
+ *                 type: string
+ *                 description: The URL of the image to be included in the post.
+ *     responses:
+ *       200:
+ *         description: The post was successfully scheduled and its ID was stored in the database.
+ *       400:
+ *         description: Invalid platform type was provided.
+ *       500:
+ *         description: An error occurred and the post was not scheduled.
+ */
+
 interface DataPayload {
     accessToken: string;
     text: string;

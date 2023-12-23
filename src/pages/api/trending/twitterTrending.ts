@@ -3,6 +3,8 @@ import cheerio from 'cheerio';
 import nc from "next-connect";
 import {NextApiRequest, NextApiResponse} from "next";
 import addTagsToDb from "../../../utils/addTagsToDb";
+import { getToken } from "next-auth/jwt"
+
 
 const getTwitterTrending = async (country: string) => {
     const url = 'https://trends24.in/' + country;
@@ -26,7 +28,11 @@ const getTwitterTrending = async (country: string) => {
 
 const handler = nc<NextApiRequest, NextApiResponse>()
     .post(async (req, res) => {
-        const { country } = req.body;
+        const { country, token } = req.body;
+        if (!token || token!=process.env.CRON_TOKEN) {
+            res.status(401).json({error: 'Unauthorized'});
+            return;
+        }
 
         if (country) {
             const hashtags = await getTwitterTrending(country);
