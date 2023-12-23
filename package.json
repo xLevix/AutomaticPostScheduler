@@ -47,6 +47,7 @@
     "aws-sdk": "^2.1344.0",
     "axios": "^1.6.2",
     "cheerio": "^1.0.0-rc.12",
+    "constructs": "^10.3.0",
     "cookies": "^0.8.0",
     "cors": "^2.8.5",
     "dayjs": "^1.11.7",
@@ -88,6 +89,7 @@
     "nock": "^13.4.0",
     "node-mocks-http": "^1.14.0",
     "ts-jest": "^29.1.1",
+    "typescript": "^5.3.3",
     "whatwg-fetch": "^3.6.19"
   },
   "jest": {
