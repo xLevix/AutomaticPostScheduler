@@ -173,16 +173,6 @@
         }
       }
     },
-    "/api/hello": {
-      "get": {
-        "description": "Returns the hello world",
-        "responses": {
-          "200": {
-            "description": "Hello World!"
-          }
-        }
-      }
-    },
     "/api/instagramCall": {
       "post": {
         "summary": "Endpoint to post a photo to Instagram.",
@@ -429,6 +419,58 @@
         }
       }
     },
+    "/api/trending/googleTrends": {
+      "post": {
+        "summary": "Retrieve trending hashtags from Google Trends",
+        "description": "This endpoint retrieves trending hashtags from Google Trends for a specific country or a predefined list of countries. It uses the google-trends-api package to fetch the trends and returns them as an array of strings. If a country is specified in the request body, it returns the trends for that country. If no country is specified, it fetches the trends for a predefined list of countries with a delay of 2 seconds between each request to avoid rate limiting.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "token"
+                ],
+                "properties": {
+                  "country": {
+                    "type": "string",
+                    "description": "The country for which to fetch the trends. If not specified, the trends for a predefined list of countries will be fetched."
+                  },
+                  "token": {
+                    "type": "string",
+                    "description": "A token to authenticate the request. Must match the CRON_TOKEN environment variable."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The request was successful. The response body contains an array of trending hashtags.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "hashtags": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. The token provided in the request body did not match the CRON_TOKEN environment variable."
+          }
+        }
+      }
+    },
     "/api/trending/instagramTrending": {
       "post": {
         "summary": "Endpoint to retrieve trending hashtags from Instagram.",
@@ -460,7 +502,7 @@
       }
     },
     "/api/trending/linkedinTrending": {
-      "get": {
+      "post": {
         "summary": "Endpoint to retrieve trending hashtags from LinkedIn.",
         "description": "This endpoint retrieves the trending hashtags for LinkedIn worldwide. The hashtags are returned in the response.",
         "responses": {
