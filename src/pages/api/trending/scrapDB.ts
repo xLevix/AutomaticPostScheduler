@@ -64,6 +64,8 @@ const handler = nc<NextApiRequest, NextApiResponse>()
 
     .post(async (req, res) => {
         const { db } = await connectToDatabase();
+        const { provider } = req.body;
+        await db.collection("TrendingTags").deleteMany({ provider });
         const tags = await db.collection("TrendingTags").insertOne(req.body);
         res.status(200).json({ success: true, data: tags });
     });
