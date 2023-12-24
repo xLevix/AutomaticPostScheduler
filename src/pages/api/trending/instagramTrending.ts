@@ -26,7 +26,6 @@ import cheerio from 'cheerio';
 import { NextApiRequest, NextApiResponse } from 'next';
 import nc from "next-connect";
 import addTagsToDb from "../../../utils/addTagsToDb";
-import {getToken} from "next-auth/jwt";
 
 /**
  * Function to get trending hashtags from Instagram for a specific country.
@@ -43,7 +42,11 @@ const getInstagramTrending = async (country: string) => {
         const hashtags = [];
 
         $('td.tag a').each((i, el) => {
-            hashtags.push($(el).text());
+            if (hashtags.length < 20) {
+                hashtags.push($(el).text());
+            } else {
+                return false;
+            }
         });
 
         await addTagsToDb('instagram', country, hashtags);
@@ -66,11 +69,12 @@ const handler = nc<NextApiRequest, NextApiResponse>()
             res.status(200).json({ hashtags });
         }else{
             const countries = ['us', 'pl', 'gb', 'de', 'es', 'ru', 'tr', 'jp'];
-            for (const country of countries) {
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                await getInstagramTrending(country);
-            }
-            res.status(200).json({ success: true });
+            const allHashtags = await Promise.all(countries.map(async (country) => {
+                const hashtags = await getInstagramTrending(country);
+                return { [country]: hashtags };
+            }));
+            const hashtagsByCountry = Object.assign({}, ...allHashtags);
+            res.status(200).json({ hashtags: hashtagsByCountry });
         }
     }
 );

@@ -37,7 +37,11 @@ const handler = nc<NextApiRequest, NextApiResponse>()
             const hashtags = [];
 
             $('span.css-1wn7vuo').each((i, el) => {
-                hashtags.push($(el).text());
+                if (hashtags.length < 20) {
+                    hashtags.push($(el).text());
+                } else {
+                    return false;
+                }
             });
 
             await addTagsToDb('linkedin', 'worldwide', hashtags);

@@ -81,10 +81,12 @@ const handler = nc<NextApiRequest, NextApiResponse>()
             res.status(200).json({ hashtags });
         } else {
             const countries = ['US', 'PL', 'GB', 'DE', 'ES', 'RU', 'TR', 'JP'];
-            await Promise.all(countries.map(async (country) => {
-                await getGoogleTrends(country);
+            const allHashtags = await Promise.all(countries.map(async (country) => {
+                const hashtags = await getGoogleTrends(country);
+                return { [country]: hashtags };
             }));
-            res.status(200).json({ success: true });
+            const hashtagsByCountry = Object.assign({}, ...allHashtags);
+            res.status(200).json({ hashtags: hashtagsByCountry });
         }
     });
 
