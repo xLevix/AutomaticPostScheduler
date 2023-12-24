@@ -6,49 +6,49 @@ const HomePage = () => {
   const steps = [
     {
       number: 1,
-      title: 'Określ Temat Postu',
-      description: 'Rozpocznij od zdefiniowania głównego tematu Twojego postu. To będzie punkt wyjścia dla AI do generowania treści.'
+      title: 'Define the Topic of the Post',
+      description: 'Start by defining the main topic of your post. This will be the starting point for AI to generate content.'
     },
     {
       number: 2,
-      title: 'Oczekuj na Treść od AI',
-      description: 'AI (GPT-3) wygeneruje wstępny szkic Twojego postu. Tekst będzie dostosowany do wybranego tematu.'
+      title: 'Wait for Content from AI',
+      description: 'AI (GPT-3) will generate a preliminary draft of your post. The text will be tailored to the chosen topic.'
     },
     {
       number: 3,
-      title: 'Edytuj Tekst',
-      description: 'Zmodyfikuj tekst według uznania. Maksymalny limit słów: 3000.'
+      title: 'Edit the Text',
+      description: 'Modify the text as you see fit. Maximum word limit: 3000.'
     },
     {
       number: 4,
-      title: 'Dodaj Zdjęcie',
-      description: 'Prześlij zdjęcie (do 1MB, aspect ratio od 4:5 do 1.91:1).'
+      title: 'Add a Photo',
+      description: 'Upload a photo (up to 1MB, aspect ratio from 4:5 to 1.91:1).'
     },
     {
       number: 5,
-      title: 'Wybierz Datę Publikacji',
-      description: 'Wybierz datę i godzinę publikacji postu, a następnie kliknij "Wyślij".'
+      title: 'Choose the Publication Date',
+      description: 'Choose the date and time of the post publication, then click "Submit".'
     }
   ];
 
   return (
     <>
       <Head>
-        <title>Automatyczne Harmonogramowanie Postów</title>
+        <title>Automatic Post Scheduling</title>
       </Head>
 
       <Container>
         <div style={{ textAlign: 'center', marginTop: '-70px' }}>
-          <Image src={photo.src} alt="Automatyczne Harmonogramowanie Postów" height={photo.width*0.7} />
-          <Title style={{ marginTop: '30px' }}>Narzędzie do Harmonogramowania Postów</Title>
-          <Text style={{ marginTop: '30px' }}>Generuj i publikuj posty na mediach społecznościowych z AI</Text>
-          <Button color="blue" size="lg" style={{ marginTop: '30px' }} onClick={() =>  window.location.href='/api/auth/signin'}>Wypróbuj teraz</Button>
+          <Image src={photo.src} alt="Automatic Post Scheduling" height={photo.width*0.7} />
+          <Title style={{ marginTop: '30px' }}>Post Scheduling Tool</Title>
+          <Text style={{ marginTop: '30px' }}>Generate and publish posts on social media with AI</Text>
+          <Button color="blue" size="lg" style={{ marginTop: '30px' }} onClick={() =>  window.location.href='/api/auth/signin'}>Try now</Button>
         </div>
 
         <SimpleGrid cols={5} breakpoints={[{ maxWidth: 'lg', cols: 1 }]} spacing="lg" style={{ marginTop: '70px' }}>
           {steps.map((step) => (
             <Card key={step.number} shadow="sm" padding="lg">
-              <Title order={4}>Krok {step.number}</Title>
+              <Title order={4}>Step {step.number}</Title>
               <Text>{step.title}</Text>
               <Space h="md"/>
               <Text size="sm">{step.description}</Text>
@@ -57,7 +57,7 @@ const HomePage = () => {
         </SimpleGrid>
 
         <div style={{ textAlign: 'center', marginTop: '60px' }}>
-          <Title>Zobacz, jak to działa</Title>
+          <Title>See how it works</Title>
           <Button color="green" size="lg" style={{ marginTop: '20px' }}>Demo</Button>
         </div>
       </Container>

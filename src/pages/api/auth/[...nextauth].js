@@ -28,7 +28,8 @@ export default NextAuth({
         }),
 
         CredentialsProvider({
-            name: "insta",
+            name: "Instagram credentials",
+            logo: "https://cdk-hnb659fds-assets-329914929726-eu-north-1.s3.eu-north-1.amazonaws.com/instagram.svg",
             credentials: {
                 username: { label: "Username", type: "text", placeholder: "login", id: "username", name: "username" },
                 password: { label: "Password", type: "password", id: "password", name: "password" }

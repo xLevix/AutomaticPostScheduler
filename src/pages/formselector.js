@@ -101,7 +101,7 @@ export default function Home() {
                         color="teal"
                         icon={<IconCheck size="1.1rem" />}
                     >
-                        Wiadomość została dodana do kolejki.
+                        The message has been added to the queue.
                     </Notification>
                 );
                 setTimeout(() => {
@@ -114,7 +114,7 @@ export default function Home() {
             setNotification(
                 <Notification
                     title="Error"
-                    message="Wystąpił błąd podczas przesyłania."
+                    message="An error occurred during transmission."
                     color="red"
                     icon={<IconX size="1.1rem" />}
                 />
@@ -161,7 +161,7 @@ export default function Home() {
         if (!file) return;
     
         if (file.size > 1024 * 1024) {
-            alert("Plik jest zbyt duży. Maksymalny rozmiar pliku to 1MB.");
+            alert("The file is too large. The maximum file size is 1MB.");
             setImage(''); 
             setImageUrl('');
             setSelectedFile(null); 
@@ -176,7 +176,7 @@ export default function Home() {
                 img.onload = () => {
                     const aspectRatioValid = checkAspectRatio(img.width, img.height);
                     if (!aspectRatioValid) {
-                        alert("Nieprawidłowe proporcje obrazka. Upewnij się, że obrazek ma proporcje od 4:5 do 1.91:1.");
+                        alert("Incorrect image proportions. Make sure the image has proportions from 4:5 to 1.91:1.");
                         setImage(''); 
                         setImageUrl(''); 
                         setSelectedFile(null);
@@ -252,8 +252,8 @@ export default function Home() {
                     <Paper shadow="xl" radius="lg" p="xl" withBorder>
                         <form onSubmit={handleSubmit}>
                             <Textarea
-                                label="Opisz o czym chciałbyś napisać i kliknij play"
-                                placeholder="Opis..."
+                                label="Describe what you would like to write about and click ask"
+                                placeholder="Description..."
                                 autosize
                                 minRows={2}
                                 maxRows={5}
@@ -263,18 +263,18 @@ export default function Home() {
                                 required
                             />
                             <Space h="md" />
-                            <Button onClick={() => askFunction(text)} fullWidth={true}>Zapytaj</Button>
+                            <Button onClick={() => askFunction(text)} fullWidth={true}>Ask</Button>
                             <Space h="xl" />
                             <Switch
                                 checked={hideResult}
                                 onChange={() => setHideResult(!hideResult)}
-                                label="Zaskocz mnie :) !"
+                                label="Surprise me :) !"
                             />
                             <Space h="md" />
                             {hideResult ? null : (
                                 <Textarea
-                                label="Wygenerowany tekst"
-                                placeholder={"Tutaj pojawi się wygenerowany tekst"}
+                                label="Generated text"
+                                placeholder={"The generated text will appear here"}
                                 autosize
                                 minRows={5}
                                 maxRows={10}
@@ -294,7 +294,7 @@ export default function Home() {
                             <Space h="md" />
                             <Card withBorder radius="md" padding="xl" bg="var(--mantine-color-body)">
                                 <Text fz="xs" tt="uppercase" fw={700} c="dimmed">
-                                    Limit znaków
+                                    Character limit
                                 </Text>
                                 <Text fz="lg" fw={500}>
                                     {characterCount} / {characterLimit}
@@ -312,11 +312,11 @@ export default function Home() {
                                 />
                             </Card>
                             <FileInput
-                                label="Prześlij zdjęcie (.png lub .jpg, max 1MB)"
-                                placeholder={"Wybierz zdjęcie"}
+                                label="Upload a photo (.png lub .jpg, max 1MB)"
+                                placeholder={"Choose a photo"}
                                 icon={<IconUpload size={rem(14)} />}
                                 onChange={(file) => {
-                                    setSelectedFile(file);  // Aktualizuj wartość wybranego pliku
+                                    setSelectedFile(file);
                                     uploadPhoto(file);
                                 }}
                                 value={selectedFile}
@@ -325,8 +325,8 @@ export default function Home() {
                             <Space h="md" />
                             <DateTimePicker
                                 clearable
-                                label="Kiedy wiadomość ma zostać wysłana?"
-                                placeholder={"Wybierz datę i godzinę"}
+                                label="When should the post be published?"
+                                placeholder={"Choose a date and time"}
                                 minDate={new Date()} 
                                 onChange={value => {
                                     const differenceInMilliseconds = Math.abs(Date.now() - value.getTime());

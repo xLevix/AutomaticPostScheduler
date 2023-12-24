@@ -33,7 +33,7 @@ const BadgeCard = ({ postData, onDelete, statsData }) => {
           onClick={onDelete}
           disabled={isPostPublished || postData.isDeleted}
         >
-          {postData.isDeleted ? 'Post został usunięty' : (isPostPublished ? 'Post został opublikowany' : 'Delete planned post')}
+          {postData.isDeleted ? 'Post has been deleted' : (isPostPublished ? 'Post has been published' : 'Delete planned post')}
         </Button>
     </Card>
         </Grid.Col>

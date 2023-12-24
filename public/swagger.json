@@ -1,0 +1,793 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Next Swagger API Example",
+    "version": "1.0"
+  },
+  "paths": {
+    "/api/deletePost": {
+      "delete": {
+        "summary": "Endpoint to delete a post.",
+        "description": "This endpoint receives a message ID and a user ID in the request body. It then retrieves the post with the provided message ID. If the post exists and the user ID matches the user ID of the post, it deletes the post. If the post does not exist, it returns a 404 error. If the user ID does not match, it returns a 403 error.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "messageId": {
+                    "type": "string",
+                    "description": "The ID of the message to be deleted."
+                  },
+                  "userId": {
+                    "type": "string",
+                    "description": "The ID of the user who is deleting the post."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The post was successfully deleted."
+          },
+          "403": {
+            "description": "The user does not have permission to delete the post."
+          },
+          "404": {
+            "description": "The post was not found."
+          },
+          "500": {
+            "description": "An error occurred and the post was not deleted."
+          }
+        }
+      }
+    },
+    "/api/generate": {
+      "post": {
+        "summary": "Endpoint to generate social media posts.",
+        "description": "This endpoint receives a prompt and a provider in the request body. It then generates a social media post based on the prompt and the provider. The provider can be 'linkedin', 'twitter', 'credentials', or 'instagram'. The generated post is returned in the response.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "prompt": {
+                    "type": "string",
+                    "description": "The prompt based on which the post is to be generated."
+                  },
+                  "provider": {
+                    "type": "string",
+                    "description": "The provider for which the post is to be generated."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The post was successfully generated."
+          },
+          "400": {
+            "description": "Invalid request body was provided."
+          },
+          "500": {
+            "description": "An error occurred and the post was not generated."
+          }
+        }
+      }
+    },
+    "/api/getMongo": {
+      "get": {
+        "summary": "Endpoint to retrieve posts from MongoDB.",
+        "description": "This endpoint receives a user ID or a message ID in the query parameters. If a user ID is provided, it returns all posts by that user. If a message ID is provided, it returns the post with that message ID. If neither is provided, it returns an error.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "userId",
+            "schema": {
+              "type": "string"
+            },
+            "description": "The ID of the user whose posts are to be retrieved."
+          },
+          {
+            "in": "query",
+            "name": "messageId",
+            "schema": {
+              "type": "string"
+            },
+            "description": "The ID of the message to be retrieved."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The posts were successfully retrieved."
+          },
+          "400": {
+            "description": "Invalid query parameters were provided."
+          }
+        }
+      },
+      "post": {
+        "summary": "Endpoint to add a new post to MongoDB.",
+        "description": "This endpoint receives a post object in the request body and adds it to the database.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "description": "The post to be added to the database."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The post was successfully added."
+          }
+        }
+      },
+      "put": {
+        "summary": "Endpoint to update a post in MongoDB.",
+        "description": "This endpoint receives a message ID, object ID, and post ID in the request body. If a message ID is provided, it sets the isDeleted field of the corresponding post to true. If an object ID and post ID are provided, it updates the post ID of the corresponding post. If neither is provided, it returns an error.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "messageId": {
+                    "type": "string",
+                    "description": "The ID of the message to be deleted."
+                  },
+                  "objectId": {
+                    "type": "string",
+                    "description": "The ID of the object to be updated."
+                  },
+                  "postId": {
+                    "type": "string",
+                    "description": "The new post ID."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The post was successfully updated."
+          },
+          "400": {
+            "description": "Invalid query parameters were provided."
+          },
+          "404": {
+            "description": "The post was not found."
+          }
+        }
+      }
+    },
+    "/api/instagramCall": {
+      "post": {
+        "summary": "Endpoint to post a photo to Instagram.",
+        "description": "This endpoint receives a username, password, text for the post, an image URL, and an object ID in the request body. It then logs into Instagram using the provided username and password, and posts the photo with the provided text. The ID of the posted photo is then added to a database using the provided object ID.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "string",
+                    "description": "The username of the Instagram account."
+                  },
+                  "accessToken": {
+                    "type": "string",
+                    "description": "The password of the Instagram account."
+                  },
+                  "text": {
+                    "type": "string",
+                    "description": "The text content of the post."
+                  },
+                  "img": {
+                    "type": "string",
+                    "description": "The URL of the image to be posted."
+                  },
+                  "objectId": {
+                    "type": "string",
+                    "description": "The ID of the object in the database where the post ID will be stored."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The photo was successfully posted and its ID was stored in the database."
+          },
+          "500": {
+            "description": "An error occurred and the photo was not posted."
+          }
+        }
+      }
+    },
+    "/api/linkedinCall": {
+      "post": {
+        "description": "Creates a LinkedIn post with the provided data and adds the post ID to the database.",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "accessToken",
+            "description": "The access token of the LinkedIn user.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "body",
+            "name": "text",
+            "description": "The text content of the LinkedIn post.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "body",
+            "name": "userId",
+            "description": "The user ID of the LinkedIn user.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "body",
+            "name": "img",
+            "description": "The image content of the LinkedIn post.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "body",
+            "name": "objectId",
+            "description": "The object ID to which the post ID will be added in the database.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The post ID and the database update response."
+          },
+          "500": {
+            "description": "An error message if the post was not created."
+          }
+        }
+      }
+    },
+    "/api/linkedinImgCall": {
+      "post": {
+        "summary": "Endpoint to upload an image to LinkedIn.",
+        "description": "This endpoint receives an image, a user ID, and an access token. It then uploads the image to LinkedIn using the provided user ID and access token. The asset ID of the uploaded image is returned in the response.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "img": {
+                    "type": "string",
+                    "description": "The image to be uploaded."
+                  },
+                  "userId": {
+                    "type": "string",
+                    "description": "The ID of the user who is uploading the image."
+                  },
+                  "accessToken": {
+                    "type": "string",
+                    "description": "The access token for the LinkedIn API."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The image was successfully uploaded and the asset ID is returned in the response."
+          },
+          "500": {
+            "description": "An error occurred and the image was not uploaded."
+          }
+        }
+      }
+    },
+    "/api/statistics/instagramStatistics": {
+      "post": {
+        "summary": "Endpoint to retrieve the likers of a specific Instagram post.",
+        "description": "This endpoint receives a username, password, and media ID in the request body. It then logs into Instagram using the provided username and password, and retrieves the likers of the post with the provided media ID. The likers are returned in the response.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "string",
+                    "description": "The username of the Instagram account."
+                  },
+                  "accessToken": {
+                    "type": "string",
+                    "description": "The password of the Instagram account."
+                  },
+                  "mediaId": {
+                    "type": "string",
+                    "description": "The ID of the media whose likers are to be retrieved."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The likers were successfully retrieved."
+          },
+          "500": {
+            "description": "An error occurred and the likers were not retrieved."
+          }
+        }
+      }
+    },
+    "/api/statistics/linkedinStatistics": {
+      "post": {
+        "summary": "Endpoint to retrieve the statistics of a specific LinkedIn post.",
+        "description": "This endpoint receives a post ID in the request body. It then logs into LinkedIn using a stored cookie, and retrieves the reactions, comments, and shares of the post with the provided post ID. The statistics are returned in the response.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "postId": {
+                    "type": "string",
+                    "description": "The ID of the post whose statistics are to be retrieved."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The statistics were successfully retrieved."
+          },
+          "500": {
+            "description": "An error occurred and the statistics were not retrieved."
+          }
+        }
+      }
+    },
+    "/api/statistics/twitterStatistics": {
+      "post": {
+        "summary": "Endpoint to retrieve the statistics of a specific Twitter post.",
+        "description": "This endpoint receives an account ID and a post ID in the request body. It then logs into Twitter using a stored cookie, and retrieves the comments, reposts, likes, bookmarks, and views of the post with the provided post ID. The statistics are returned in the response.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "accountId": {
+                    "type": "string",
+                    "description": "The ID of the account whose post's statistics are to be retrieved."
+                  },
+                  "postId": {
+                    "type": "string",
+                    "description": "The ID of the post whose statistics are to be retrieved."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The statistics were successfully retrieved."
+          },
+          "500": {
+            "description": "An error occurred and the statistics were not retrieved."
+          }
+        }
+      }
+    },
+    "/api/trending/googleTrends": {
+      "post": {
+        "summary": "Retrieve trending hashtags from Google Trends",
+        "description": "This endpoint retrieves trending hashtags from Google Trends for a specific country or a predefined list of countries. It uses the google-trends-api package to fetch the trends and returns them as an array of strings. If a country is specified in the request body, it returns the trends for that country. If no country is specified, it fetches the trends for a predefined list of countries with a delay of 2 seconds between each request to avoid rate limiting.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "token"
+                ],
+                "properties": {
+                  "country": {
+                    "type": "string",
+                    "description": "The country for which to fetch the trends. If not specified, the trends for a predefined list of countries will be fetched."
+                  },
+                  "token": {
+                    "type": "string",
+                    "description": "A token to authenticate the request. Must match the CRON_TOKEN environment variable."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The request was successful. The response body contains an array of trending hashtags.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "hashtags": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized. The token provided in the request body did not match the CRON_TOKEN environment variable."
+          }
+        }
+      }
+    },
+    "/api/trending/instagramTrending": {
+      "post": {
+        "summary": "Endpoint to retrieve trending hashtags from Instagram.",
+        "description": "This endpoint receives a country in the request body. It then retrieves the trending hashtags for Instagram in the provided country. If no country is provided, it retrieves the trending hashtags for a list of default countries. The hashtags are returned in the response.",
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "country": {
+                    "type": "string",
+                    "description": "The country for which the trending hashtags are to be retrieved."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The hashtags were successfully retrieved."
+          },
+          "500": {
+            "description": "An error occurred and the hashtags were not retrieved."
+          }
+        }
+      }
+    },
+    "/api/trending/linkedinTrending": {
+      "post": {
+        "summary": "Endpoint to retrieve trending hashtags from LinkedIn.",
+        "description": "This endpoint retrieves the trending hashtags for LinkedIn worldwide. The hashtags are returned in the response.",
+        "responses": {
+          "200": {
+            "description": "The hashtags were successfully retrieved."
+          },
+          "500": {
+            "description": "An error occurred and the hashtags were not retrieved."
+          }
+        }
+      }
+    },
+    "/api/trending/scrapDB": {
+      "get": {
+        "summary": "Endpoint to retrieve trending hashtags from the database.",
+        "description": "This endpoint receives a provider and a country in the query parameters. If both are provided, it returns the trending hashtags for the provider in the provided country. If only the provider is provided, it returns the trending hashtags for the provider worldwide. If neither is provided, it returns an error.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "provider",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The provider for which the trending hashtags are to be retrieved."
+          },
+          {
+            "in": "query",
+            "name": "country",
+            "schema": {
+              "type": "string"
+            },
+            "description": "The country for which the trending hashtags are to be retrieved."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The hashtags were successfully retrieved."
+          },
+          "400": {
+            "description": "Invalid query parameters were provided."
+          }
+        }
+      },
+      "post": {
+        "summary": "Endpoint to add a new trending hashtag to the database.",
+        "description": "This endpoint receives a hashtag object in the request body and adds it to the database.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "description": "The hashtag to be added to the database."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The hashtag was successfully added."
+          }
+        }
+      }
+    },
+    "/api/twitterCall": {
+      "post": {
+        "summary": "Endpoint to post a tweet with or without an image.",
+        "description": "This endpoint receives an access token, text for the tweet, an image (optional), and an object ID. It then posts the tweet to Twitter using the provided access token and text. If an image is provided, it is included in the tweet. The ID of the posted tweet is then added to a database using the provided object ID.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "accessToken": {
+                    "type": "string",
+                    "description": "The access token for the Twitter API."
+                  },
+                  "text": {
+                    "type": "string",
+                    "description": "The text content of the tweet."
+                  },
+                  "img": {
+                    "type": "string",
+                    "description": "The image to be included in the tweet."
+                  },
+                  "objectId": {
+                    "type": "string",
+                    "description": "The ID of the object in the database where the tweet ID will be stored."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The tweet was successfully posted and its ID was stored in the database."
+          },
+          "500": {
+            "description": "An error occurred and the tweet was not posted."
+          }
+        }
+      }
+    },
+    "/api/twitterImgCall": {
+      "post": {
+        "summary": "Endpoint to upload an image to Twitter.",
+        "description": "This endpoint receives an image and additional owners (optional) in the request body. It then uploads the image to Twitter using the Twitter API. The media ID of the uploaded image is returned in the response.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "img": {
+                    "type": "string",
+                    "description": "The image to be uploaded."
+                  },
+                  "additionalOwners": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Additional owners of the media."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The image was successfully uploaded and the media ID is returned in the response."
+          },
+          "500": {
+            "description": "An error occurred and the image was not uploaded."
+          }
+        }
+      }
+    },
+    "/api/upload-url": {
+      "post": {
+        "summary": "Endpoint to create a pre-signed URL for AWS S3.",
+        "description": "This endpoint receives a file name and file type in the query parameters. It then creates a pre-signed URL using AWS S3, which can be used to upload the file directly to S3. The URL expires after 60 seconds and the file size must be up to 1 MB.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "file",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The name of the file to be uploaded."
+          },
+          {
+            "in": "query",
+            "name": "fileType",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The MIME type of the file to be uploaded."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The pre-signed URL was successfully created."
+          },
+          "500": {
+            "description": "An error occurred and the pre-signed URL was not created."
+          }
+        }
+      }
+    },
+    "/api/uQStashCall": {
+      "post": {
+        "summary": "Endpoint to schedule posts for different platforms.",
+        "description": "This endpoint receives a platform type, access token, text for the post, an image (optional), user ID (optional), and other platform-specific parameters. It then schedules the post for the specified platform using the provided access token and text. If an image is provided, it is included in the post. The ID of the scheduled post is then added to a database.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "platform": {
+                    "type": "string",
+                    "description": "The platform for which the post is to be scheduled."
+                  },
+                  "accessToken": {
+                    "type": "string",
+                    "description": "The access token for the platform API."
+                  },
+                  "text": {
+                    "type": "string",
+                    "description": "The text content of the post."
+                  },
+                  "img": {
+                    "type": "string",
+                    "description": "The image to be included in the post."
+                  },
+                  "userId": {
+                    "type": "string",
+                    "description": "The ID of the user who is scheduling the post."
+                  },
+                  "delay": {
+                    "type": "string",
+                    "description": "The delay after which the post should be published."
+                  },
+                  "title": {
+                    "type": "string",
+                    "description": "The title of the post."
+                  },
+                  "date": {
+                    "type": "string",
+                    "description": "The date when the post should be published."
+                  },
+                  "imageUrl": {
+                    "type": "string",
+                    "description": "The URL of the image to be included in the post."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The post was successfully scheduled and its ID was stored in the database."
+          },
+          "400": {
+            "description": "Invalid platform type was provided."
+          },
+          "500": {
+            "description": "An error occurred and the post was not scheduled."
+          }
+        }
+      }
+    },
+    "/api/validateToken": {
+      "post": {
+        "summary": "Endpoint to validate access tokens for different providers.",
+        "description": "This endpoint receives a provider name, username, and access token in the request body. It then validates the access token by making a request to the provider's API. If the token is valid, it returns a response with valid set to true. If the token is not valid, it returns a response with valid set to false. If an error occurs, it returns a server error.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "provider": {
+                    "type": "string",
+                    "description": "The name of the provider for which the token is to be validated."
+                  },
+                  "username": {
+                    "type": "string",
+                    "description": "The username of the user who owns the token."
+                  },
+                  "accessToken": {
+                    "type": "string",
+                    "description": "The access token to be validated."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The token is valid."
+          },
+          "401": {
+            "description": "The token is not valid."
+          },
+          "500": {
+            "description": "A server error occurred."
+          }
+        }
+      }
+    }
+  },
+  "components": {},
+  "tags": []
+}

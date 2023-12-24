@@ -2,7 +2,13 @@ import { Group, Paper, SimpleGrid, Text } from '@mantine/core';
 import classes from './StatsGrid.module.css';
 
 const StatsGrid = ({ statsData }) => {
-    const stats = statsData.map((stat) => (
+    const defaultStats = [
+        { title: 'Likes', value: 'No information yet' },
+        { title: 'Comments', value: 'No information yet' },
+        { title: 'Shares', value: 'No information yet' },
+    ];
+
+    const stats = (statsData || defaultStats).map((stat) => (
         <Paper withBorder p="md" radius="md" key={stat.title}>
             <Group justify="space-between">
                 <Text size="xs" color="dimmed" className={classes.title}>

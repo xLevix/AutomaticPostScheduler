@@ -12,6 +12,7 @@ const PostPage = () => {
     const router = useRouter();
     const { messageId } = router.query;
     const [error, setError] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         if (messageId && session) {
@@ -23,6 +24,7 @@ const PostPage = () => {
                         setError("Nie masz uprawnień do przeglądania tego postu.");
                         return;
                     }
+                    setIsLoading(false);
                     setPostData(post);
                 } catch (error) {
                     console.error("Error fetching the post data", error);
@@ -51,6 +53,7 @@ const PostPage = () => {
                     ];
                     console.log("Stats data", statsData);
                     setStats(statsData);
+                    setIsLoading(false);
                 } catch (error) {
                     console.error("Error fetching statistics", error);
                 }
@@ -76,13 +79,20 @@ const PostPage = () => {
         }
     };
 
-    if (!stats) return <LoadingOverlay visible/>;
+    if (isLoading) return <LoadingOverlay visible/>;
     if (error) return <p>{error}</p>;
 
     return (
-        <div>{stats && (
-            <BadgeCard postData={postData} statsData={stats} onDelete={handleDelete} />
-        )}
+        <div>
+            {postData && (postData.isDeleted || new Date(postData.date) > new Date()) ? (
+                <BadgeCard postData={postData} statsData={stats} onDelete={handleDelete} />
+            ) : (
+                stats ? (
+                    <BadgeCard postData={postData} statsData={stats} onDelete={handleDelete} />
+                ) : (
+                    <LoadingOverlay visible/>
+                )
+            )}
         </div>
     );
 };

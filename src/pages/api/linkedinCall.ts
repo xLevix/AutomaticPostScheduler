@@ -1,6 +1,49 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import nc from 'next-connect';
-import addPostIdToDb from "../../utils/addPostIdToDb";
+import addPostIdToDb from "../../utils/addPostIdToDb.js";
+
+/**
+ * @swagger
+ * /api/linkedinCall:
+ *   post:
+ *     description: Creates a LinkedIn post with the provided data and adds the post ID to the database.
+ *     parameters:
+ *       - in: body
+ *         name: accessToken
+ *         description: The access token of the LinkedIn user.
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: body
+ *         name: text
+ *         description: The text content of the LinkedIn post.
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: body
+ *         name: userId
+ *         description: The user ID of the LinkedIn user.
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: body
+ *         name: img
+ *         description: The image content of the LinkedIn post.
+ *         required: false
+ *         schema:
+ *           type: string
+ *       - in: body
+ *         name: objectId
+ *         description: The object ID to which the post ID will be added in the database.
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: The post ID and the database update response.
+ *       500:
+ *         description: An error message if the post was not created.
+ */
 
 const handler = nc<NextApiRequest, NextApiResponse>()
     .post((req, res) => {
@@ -70,3 +113,4 @@ const handler = nc<NextApiRequest, NextApiResponse>()
     });
 
 export default handler;
+

@@ -10,10 +10,24 @@ function HeaderWithSession() {
 
     const tabs = React.useMemo(() => {
         if (session) {
+            const LogoutIcon =
+                session.provider === 'linkedin' ? "https://cdk-hnb659fds-assets-329914929726-eu-north-1.s3.eu-north-1.amazonaws.com/linkedin-original.svg"
+                : session.provider === 'twitter' ? "https://cdk-hnb659fds-assets-329914929726-eu-north-1.s3.eu-north-1.amazonaws.com/twitter.svg"
+                    : session.provider === 'credentials' ? "https://cdk-hnb659fds-assets-329914929726-eu-north-1.s3.eu-north-1.amazonaws.com/instagram.svg"
+                        : null;
+
             return [
                 { label: "Add Post", link: "/formselector" },
                 { label: "Calendar", link: "/calendar" },
-                { label: "Logout", link: "/api/auth/signout" },
+                {
+                    label: (
+                        <div style={{display: 'flex', alignItems: 'center'}}>
+                            Logout from
+                            <img src={LogoutIcon} alt="Logout" style={{maxWidth: '35%', maxHeight: '35%', marginLeft: '10px'}}/>
+                        </div>
+                    ),
+                    link: "/api/auth/signout"
+                },
             ];
         } else {
             return [
