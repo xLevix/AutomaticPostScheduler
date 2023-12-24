@@ -1,7 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import nc from 'next-connect';
 import addPostIdToDb from "../../utils/addPostIdToDb.js";
-import axios from "axios";
 
 /**
  * @swagger
@@ -46,13 +45,9 @@ import axios from "axios";
  *         description: An error message if the post was not created.
  */
 
-const handlerFactory = (axiosInstance) => {
-    return nc<NextApiRequest, NextApiResponse>()
-        .post(async (req, res, next) => {
-            // Kod handlera
-            console.log("XD");
-
-            const { accessToken, text, userId, img, objectId } = req.body;
+const handler = nc<NextApiRequest, NextApiResponse>()
+    .post((req, res) => {
+        const { accessToken, text, userId, img, objectId } = req.body;
 
         let axios = require('axios');
         let data = JSON.stringify({
@@ -100,35 +95,22 @@ const handlerFactory = (axiosInstance) => {
                 'LinkedIn-Version': '202301',
                 'Authorization': `Bearer ${accessToken}`,
             },
-            data : data,
-            axiosInstance: axiosInstance || axios,
+            data : data
         };
 
-        // axios(config)
-        //     .then(async function (response) {
-        //         const restliIdHeader = response.headers['x-restli-id'];
-        //         const postId = restliIdHeader.split(':').pop();
-        //         const updateResponse = await addPostIdToDb(objectId, postId);
-        //         res.status(200).json({PostId: +postId, DatabaseUpdate: updateResponse.data});
-        //     })
-        //     .catch(function (error) {
-        //         console.error('Axios error:', error);
-        //         res.status(500).json({ message: 'Post not created', error: error });
-        //     });
-
-        try{
-            console.log("XD");
-            const response = await (axiosInstance || axios)(config);
-            const restliIdHeader = response.headers['x-restli-id'];
-            const postId = restliIdHeader.split(':').pop();
-            const updateResponse = await addPostIdToDb(objectId, postId);
-            res.status(200).json({PostId: +postId, DatabaseUpdate: updateResponse.data});
-        } catch (error) {
-            console.error('Axios error:', error);
-            res.status(500).json({ message: 'Post not created', error: error });
-        }
+        axios(config)
+            .then(async function (response) {
+                const restliIdHeader = response.headers['x-restli-id'];
+                const postId = restliIdHeader.split(':').pop();
+                const updateResponse = await addPostIdToDb(objectId, postId);
+                res.status(200).json({PostId: +postId, DatabaseUpdate: updateResponse.data});
+            })
+            .catch(function (error) {
+                console.error('Axios error:', error);
+                res.status(500).json({ message: 'Post not created', error: error });
+            });
 
     });
-}
 
-export default handlerFactory;
+export default handler;
+

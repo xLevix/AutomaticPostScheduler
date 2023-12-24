@@ -103,7 +103,7 @@ export function HeaderResponsive({ links }: HeaderResponsiveProps | null) {
 
     const items = links.map((link, index) => (
         <a
-            key={index} // use index as a key
+            key={index}
     href={link.link}
     className={cx(classes.link, { [classes.linkActive]: active === link.link })}
     onClick={(event) => {

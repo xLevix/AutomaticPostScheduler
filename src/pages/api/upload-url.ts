@@ -46,9 +46,9 @@ export default async function handler(
             key: req.query.file,
             'Content-Type': req.query.fileType,
         },
-        Expires: 60, // seconds
+        Expires: 60,
         Conditions: [
-            ['content-length-range', 0, 1048576], // up to 1 MB
+            ['content-length-range', 0, 1048576],
         ],
     })
 

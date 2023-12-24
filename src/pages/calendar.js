@@ -47,21 +47,21 @@ export default function Calendar() {
         date: post.date,
         text: post.text,
         url: `/post/${post.messageId}`,
-        isDeleted: post.isDeleted || false // Dodajemy właściwość isDeleted dla każdego postu
+        isDeleted: post.isDeleted || false
     }));
 
     const eventClassNames = (eventInfo) => {
-        console.log("eventClassNames called"); // Wyświetl, kiedy funkcja jest wywoływana
+        console.log("eventClassNames called");
     
         if (eventInfo.event.extendedProps.isDeleted) {
-            console.log("Post is deleted!"); // Wyświetl, kiedy wydarzenie jest usunięte
+            console.log("Post is deleted!");
             return ['deleted-post'];
         }
         return [];
     };
     
     const eventContent = (eventInfo) => {
-    console.log(eventInfo); // Wyświetl informacje o wydarzeniu
+    console.log(eventInfo);
     let classNames = [];
     if (eventInfo.event.extendedProps.isDeleted) {
         classNames.push('deleted-post');
@@ -82,7 +82,7 @@ export default function Calendar() {
                 }
 
                 .fc-event {
-                    height: 60px !important; // Zwiększ wysokość eventu
+                    height: 60px !important;
                 }
             `}</style>
             {!loading && (
@@ -100,7 +100,7 @@ export default function Calendar() {
                         minute: '2-digit',
                         hour12: false 
                     }}
-                    eventClassNames={eventClassNames} // Dodajemy eventClassNames do FullCalendar
+                    eventClassNames={eventClassNames}
                 />
             )}
         </div>
