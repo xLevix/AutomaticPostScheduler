@@ -81,7 +81,7 @@ const handler = nc<NextApiRequest, NextApiResponse>()
                 console.log(hashtags)
                 res.status(200).json({ hashtags });
             }else{
-                const countries = ['US', 'PL', 'GB', 'DE', 'ES', 'RU', 'TR', 'SA', 'JP'];
+                const countries = ['US', 'PL', 'GB', 'DE', 'ES', 'RU', 'TR', 'JP'];
                 for (const country of countries) {
                     await new Promise(resolve => setTimeout(resolve, 2000));
                     await getGoogleTrends(country);
