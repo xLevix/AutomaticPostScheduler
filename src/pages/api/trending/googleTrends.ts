@@ -70,25 +70,23 @@ const getGoogleTrends = (country: string) => {
 
 const handler = nc<NextApiRequest, NextApiResponse>()
     .post(async (req, res) => {
-            const { country, token } = req.body;
-            if (!token || token!=process.env.CRON_TOKEN) {
-                res.status(401).json({error: 'Unauthorized'});
-                return;
-            }
-
-            if (country){
-                const hashtags = await getGoogleTrends(country);
-                console.log(hashtags)
-                res.status(200).json({ hashtags });
-            }else{
-                const countries = ['US', 'PL', 'GB', 'DE', 'ES', 'RU', 'TR', 'JP'];
-                for (const country of countries) {
-                    await new Promise(resolve => setTimeout(resolve, 2000));
-                    await getGoogleTrends(country);
-                }
-                res.status(200).json({ success: true });
-            }
+        const { country, token } = req.body;
+        if (!token || token != process.env.CRON_TOKEN) {
+            res.status(401).json({error: 'Unauthorized'});
+            return;
         }
-    );
+
+        if (country) {
+            const hashtags = await getGoogleTrends(country);
+            res.status(200).json({ hashtags });
+        } else {
+            const countries = ['US', 'PL', 'GB', 'DE', 'ES', 'RU', 'TR', 'JP'];
+            await Promise.all(countries.map(async (country) => {
+                await getGoogleTrends(country);
+            }));
+            res.status(200).json({ success: true });
+        }
+    });
+
 
 export default handler;

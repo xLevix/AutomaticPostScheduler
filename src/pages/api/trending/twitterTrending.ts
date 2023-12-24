@@ -27,10 +27,8 @@ const getTwitterTrending = async (country: string) => {
 
 const handler = nc<NextApiRequest, NextApiResponse>()
     .post(async (req, res) => {
-        const token = await getToken({ req })
-        const country = req.body.country;
-
-        if (!token) {
+        const { country, token } = req.body;
+        if (!token || token!=process.env.CRON_TOKEN) {
             res.status(401).json({error: 'Unauthorized'});
             return;
         }
