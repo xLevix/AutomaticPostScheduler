@@ -1,48 +1,57 @@
+/**
+ * @swagger
+ * /api/linkedinCall:
+ *   post:
+ *     summary: Endpoint to create a LinkedIn post.
+ *     description: This endpoint creates a LinkedIn post with the provided text, user ID, and optional image. The post ID is returned in the response.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               accessToken:
+ *                 type: string
+ *                 description: The access token for LinkedIn API.
+ *               text:
+ *                 type: string
+ *                 description: The text of the post.
+ *               userId:
+ *                 type: string
+ *                 description: The user ID of the post author.
+ *               img:
+ *                 type: string
+ *                 description: The image of the post (optional).
+ *               objectId:
+ *                 type: string
+ *                 description: The object ID of the post.
+ *     responses:
+ *       200:
+ *         description: The post was successfully created.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 PostId:
+ *                   type: number
+ *                   description: The ID of the created post.
+ *                 DatabaseUpdate:
+ *                   type: object
+ *                   description: The response from the database update operation.
+ *       500:
+ *         description: An error occurred and the post was not created.
+ */
+
 import { NextApiRequest, NextApiResponse } from 'next';
 import nc from 'next-connect';
 import addPostIdToDb from "../../utils/addPostIdToDb.js";
 
 /**
- * @swagger
- * /api/linkedinCall:
- *   post:
- *     description: Creates a LinkedIn post with the provided data and adds the post ID to the database.
- *     parameters:
- *       - in: body
- *         name: accessToken
- *         description: The access token of the LinkedIn user.
- *         required: true
- *         schema:
- *           type: string
- *       - in: body
- *         name: text
- *         description: The text content of the LinkedIn post.
- *         required: true
- *         schema:
- *           type: string
- *       - in: body
- *         name: userId
- *         description: The user ID of the LinkedIn user.
- *         required: true
- *         schema:
- *           type: string
- *       - in: body
- *         name: img
- *         description: The image content of the LinkedIn post.
- *         required: false
- *         schema:
- *           type: string
- *       - in: body
- *         name: objectId
- *         description: The object ID to which the post ID will be added in the database.
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: The post ID and the database update response.
- *       500:
- *         description: An error message if the post was not created.
+ * Handler for the /api/linkedinCall endpoint.
+ * @param {NextApiRequest} req - The request object.
+ * @param {NextApiResponse} res - The response object.
  */
 
 const handler = nc<NextApiRequest, NextApiResponse>()

@@ -221,60 +221,63 @@
     },
     "/api/linkedinCall": {
       "post": {
-        "description": "Creates a LinkedIn post with the provided data and adds the post ID to the database.",
-        "parameters": [
-          {
-            "in": "body",
-            "name": "accessToken",
-            "description": "The access token of the LinkedIn user.",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "body",
-            "name": "text",
-            "description": "The text content of the LinkedIn post.",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "body",
-            "name": "userId",
-            "description": "The user ID of the LinkedIn user.",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "body",
-            "name": "img",
-            "description": "The image content of the LinkedIn post.",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "body",
-            "name": "objectId",
-            "description": "The object ID to which the post ID will be added in the database.",
-            "required": true,
-            "schema": {
-              "type": "string"
+        "summary": "Endpoint to create a LinkedIn post.",
+        "description": "This endpoint creates a LinkedIn post with the provided text, user ID, and optional image. The post ID is returned in the response.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "accessToken": {
+                    "type": "string",
+                    "description": "The access token for LinkedIn API."
+                  },
+                  "text": {
+                    "type": "string",
+                    "description": "The text of the post."
+                  },
+                  "userId": {
+                    "type": "string",
+                    "description": "The user ID of the post author."
+                  },
+                  "img": {
+                    "type": "string",
+                    "description": "The image of the post (optional)."
+                  },
+                  "objectId": {
+                    "type": "string",
+                    "description": "The object ID of the post."
+                  }
+                }
+              }
             }
           }
-        ],
+        },
         "responses": {
           "200": {
-            "description": "The post ID and the database update response."
+            "description": "The post was successfully created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "PostId": {
+                      "type": "number",
+                      "description": "The ID of the created post."
+                    },
+                    "DatabaseUpdate": {
+                      "type": "object",
+                      "description": "The response from the database update operation."
+                    }
+                  }
+                }
+              }
+            }
           },
           "500": {
-            "description": "An error message if the post was not created."
+            "description": "An error occurred and the post was not created."
           }
         }
       }
@@ -419,27 +422,23 @@
         }
       }
     },
-    "/api/trending/googleTrends": {
+    "/api/trending/googleTrending": {
       "post": {
-        "summary": "Retrieve trending hashtags from Google Trends",
-        "description": "This endpoint retrieves trending hashtags from Google Trends for a specific country or a predefined list of countries. It uses the google-trends-api package to fetch the trends and returns them as an array of strings. If a country is specified in the request body, it returns the trends for that country. If no country is specified, it fetches the trends for a predefined list of countries with a delay of 2 seconds between each request to avoid rate limiting.",
+        "summary": "Retrieve trending topics from Google for a specific country.",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "token"
-                ],
                 "properties": {
                   "country": {
                     "type": "string",
-                    "description": "The country for which to fetch the trends. If not specified, the trends for a predefined list of countries will be fetched."
+                    "description": "The country to get trending topics for. If not provided, it will return trends for a set of predefined countries."
                   },
                   "token": {
                     "type": "string",
-                    "description": "A token to authenticate the request. Must match the CRON_TOKEN environment variable."
+                    "description": "The CRON token for authorization."
                   }
                 }
               }
@@ -448,25 +447,10 @@
         },
         "responses": {
           "200": {
-            "description": "The request was successful. The response body contains an array of trending hashtags.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "hashtags": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
-                    }
-                  }
-                }
-              }
-            }
+            "description": "A successful response returns the trending topics for the specified country or a set of predefined countries."
           },
           "401": {
-            "description": "Unauthorized. The token provided in the request body did not match the CRON_TOKEN environment variable."
+            "description": "Unauthorized access, invalid or missing CRON token."
           }
         }
       }
@@ -505,9 +489,49 @@
       "post": {
         "summary": "Endpoint to retrieve trending hashtags from LinkedIn.",
         "description": "This endpoint retrieves the trending hashtags for LinkedIn worldwide. The hashtags are returned in the response.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "token": {
+                    "type": "string",
+                    "description": "The CRON token for authorization."
+                  }
+                }
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
-            "description": "The hashtags were successfully retrieved."
+            "description": "The hashtags were successfully retrieved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "hashtags": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "An array of trending hashtags.",
+                      "example": [
+                        "#trending1",
+                        "#trending2",
+                        "#trending3"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access, invalid or missing CRON token."
           },
           "500": {
             "description": "An error occurred and the hashtags were not retrieved."
@@ -517,17 +541,16 @@
     },
     "/api/trending/scrapDB": {
       "get": {
-        "summary": "Endpoint to retrieve trending hashtags from the database.",
-        "description": "This endpoint receives a provider and a country in the query parameters. If both are provided, it returns the trending hashtags for the provider in the provided country. If only the provider is provided, it returns the trending hashtags for the provider worldwide. If neither is provided, it returns an error.",
+        "summary": "Retrieve trending tags from the database for a specific provider and country.",
         "parameters": [
           {
             "in": "query",
             "name": "provider",
-            "required": true,
             "schema": {
               "type": "string"
             },
-            "description": "The provider for which the trending hashtags are to be retrieved."
+            "required": true,
+            "description": "The provider of the trending tags."
           },
           {
             "in": "query",
@@ -535,35 +558,72 @@
             "schema": {
               "type": "string"
             },
-            "description": "The country for which the trending hashtags are to be retrieved."
+            "description": "The country to get trending tags for. If not provided, it will return tags for all countries."
           }
         ],
         "responses": {
           "200": {
-            "description": "The hashtags were successfully retrieved."
+            "description": "A successful response returns the trending tags for the specified provider and country."
           },
           "400": {
-            "description": "Invalid query parameters were provided."
+            "description": "Invalid query parameters."
           }
         }
       },
       "post": {
-        "summary": "Endpoint to add a new trending hashtag to the database.",
-        "description": "This endpoint receives a hashtag object in the request body and adds it to the database.",
+        "summary": "Delete all trending tags for a specific provider and insert new ones.",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
-                "description": "The hashtag to be added to the database."
+                "properties": {
+                  "provider": {
+                    "type": "string",
+                    "description": "The provider of the trending tags."
+                  }
+                }
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "The hashtag was successfully added."
+            "description": "A successful response returns the inserted trending tags."
+          }
+        }
+      }
+    },
+    "/api/trending/twitterTrending": {
+      "post": {
+        "summary": "Retrieve trending hashtags from Twitter for a specific country or worldwide.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "country": {
+                    "type": "string",
+                    "description": "The country to get trending hashtags for. If not provided, it will return worldwide trends."
+                  },
+                  "token": {
+                    "type": "string",
+                    "description": "The CRON token for authorization."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "A successful response returns the trending hashtags for the specified country or worldwide."
+          },
+          "401": {
+            "description": "Unauthorized access, invalid or missing CRON token."
           }
         }
       }
