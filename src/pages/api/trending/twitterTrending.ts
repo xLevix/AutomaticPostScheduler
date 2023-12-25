@@ -1,3 +1,35 @@
+/**
+ * @swagger
+ * /api/trending/twitterTrending:
+ *   post:
+ *     summary: Retrieve trending hashtags from Twitter for a specific country or worldwide.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               country:
+ *                 type: string
+ *                 description: The country to get trending hashtags for. If not provided, it will return worldwide trends.
+ *               token:
+ *                 type: string
+ *                 description: The CRON token for authorization.
+ *     responses:
+ *       200:
+ *         description: A successful response returns the trending hashtags for the specified country or worldwide.
+ *       401:
+ *         description: Unauthorized access, invalid or missing CRON token.
+ */
+
+/**
+ * Fetches trending hashtags from Twitter for a specific country or worldwide.
+ * @param {string} country - The country to get trending hashtags for.
+ * @returns {Array<string>} An array of trending hashtags.
+ * @throws {Error} If there is an error fetching the data.
+ */
+
 import axios from 'axios';
 import cheerio from 'cheerio';
 import nc from "next-connect";

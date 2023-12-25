@@ -4,9 +4,32 @@
  *   post:
  *     summary: Endpoint to retrieve trending hashtags from LinkedIn.
  *     description: This endpoint retrieves the trending hashtags for LinkedIn worldwide. The hashtags are returned in the response.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               token:
+ *                 type: string
+ *                 description: The CRON token for authorization.
  *     responses:
  *       200:
  *         description: The hashtags were successfully retrieved.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 hashtags:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                   description: An array of trending hashtags.
+ *                   example: ["#trending1", "#trending2", "#trending3"]
+ *       401:
+ *         description: Unauthorized access, invalid or missing CRON token.
  *       500:
  *         description: An error occurred and the hashtags were not retrieved.
  */

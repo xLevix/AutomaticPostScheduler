@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { SegmentedControl, Select, List } from '@mantine/core';
+import {SegmentedControl, Select, Container, Table, Space} from '@mantine/core';
 import axios from 'axios';
 
 export function Trending() {
     const [provider, setProvider] = useState('linkedin');
     const [country, setCountry] = useState('worldwide');
     const [tags, setTags] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
+    const [providerUrl, setProviderUrl] = useState('');
 
     const providerOptions = [
-        { label: 'LinkedIn', value: 'linkedin' },
-        { label: 'Instagram', value: 'instagram' },
-        { label: 'Twitter', value: 'twitter' },
-        { label: 'Google Trends', value: 'google' }
+        { label: 'LinkedIn', value: 'linkedin', url: 'https://taplio.com/trending' },
+        { label: 'Instagram', value: 'instagram', url: 'https://displaypurposes.com/hashtags/rank/best/country' },
+        { label: 'Twitter', value: 'twitter', url: 'https://trends24.in/' },
+        { label: 'Google Trends', value: 'google', url: 'RapidAPI Trendly (Google Trends)' },
     ];
 
     const countryOptions = {
@@ -41,69 +41,100 @@ export function Trending() {
             { label: 'Worldwide', value: 'worldwide' }
         ],
         google: [
-            { label: 'United States', value: 'US' },
-            { label: 'Poland', value: 'PL' },
-            { label: 'United Kingdom', value: 'GB' },
-            { label: 'Germany', value: 'DE' },
-            { label: 'Spain', value: 'ES' },
-            { label: 'Russia', value: 'RU' },
-            { label: 'Turkey', value: 'TR' },
-            { label: 'Japan', value: 'JP' },
+            { label: 'United States', value: 'United States' },
+            { label: 'Poland', value: 'Poland' },
+            { label: 'United Kingdom', value: 'United Kingdom' },
+            { label: 'Germany', value: 'Germany' },
+            { label: 'Spain', value: 'Spain' },
+            { label: 'Russia', value: 'Russia' },
+            { label: 'Turkey', value: 'Turkey' },
+            { label: 'Japan', value: 'Japan' },
         ]
     };
 
+    const tagRows = tags.map((tag, index) => (
+        <tr key={index}>
+            <td>{index + 1}</td>
+            <td>{tag}</td>
+        </tr>
+    ));
+
     useEffect(() => {
         async function fetchTags() {
-            setIsLoading(true);
-            const apiProvider = provider === 'Google Trends' ? 'google' : provider.toLowerCase();
-
+            const apiProvider = provider.toLowerCase();
             try {
-                const response = await axios.get('/api/trending/scrapDB', {
-                    params: { provider: apiProvider, country: countryOptions[apiProvider].find(c => c.label === country)?.value }
-                });
-                setTags(response.data.data[0].tags);
+                const params = { provider: apiProvider };
+                if (apiProvider !== 'linkedin') {
+                    params['country'] = countryOptions[provider].find(c => c.label === country)?.value;
+                }
+                const response = await axios.get('/api/trending/scrapDB', { params });
+                if (Array.isArray(response.data.data)) {
+                    setTags(response.data.data);
+                } else {
+                    console.error('Unexpected data format:', response.data.data);
+                    setTags([]);
+                }
             } catch (error) {
                 console.error('Error fetching tags:', error);
             }
-            setIsLoading(false);
         }
 
         fetchTags();
     }, [provider, country]);
 
     useEffect(() => {
+        const defaultCountryOptions = countryOptions[provider.toLowerCase()];
         if (provider === 'linkedin') {
             setCountry('Worldwide');
-        } else {
-            setCountry(countryOptions[provider.toLowerCase()][0].label);
+        } else if (defaultCountryOptions && defaultCountryOptions.length > 0) {
+            setCountry(defaultCountryOptions[0].label);
+        }
+        const selectedProvider = providerOptions.find(option => option.value === provider);
+        if (selectedProvider) {
+            setProviderUrl(selectedProvider.url);
         }
     }, [provider]);
 
+    const currentCountryOptions = countryOptions[provider.toLowerCase()] || [];
+
     return (
-        <div>
-            <SegmentedControl
-                data={providerOptions.map(option => option.label)}
-                value={provider}
-                onChange={value => setProvider(value.toLowerCase())}
-            />
+        <Container>
+            <div>
+                <SegmentedControl
+                    data={providerOptions.map(option => option.label)}
+                    value={providerOptions.find(option => option.value === provider)?.label}
+                    onChange={label => {
+                        const selectedOption = providerOptions.find(option => option.label === label);
+                        if (selectedOption) {
+                            setProvider(selectedOption.value);
+                        }
+                    }}
+                />
+                <Space h="xl"/>
+                <Select
+                    label="Pick a country"
+                    placeholder="Pick a country"
+                    value={country}
+                    onChange={setCountry}
+                    disabled={provider === 'linkedin'}
+                    data={currentCountryOptions.map(option => option.label)}
+                />
+                <Space h="xl"/>
+                <p>Data sourced from: <a href={providerUrl} target="_blank" rel="noopener noreferrer">{providerUrl}</a>
+                </p>
 
-            <Select
-                label="Pick a country"
-                placeholder="Pick a country"
-                value={country}
-                onChange={setCountry}
-                disabled={provider === 'linkedin'}
-                data={countryOptions[provider.toLowerCase()].map(option => option.label)}
-            />
+                <Table>
+                    <thead>
+                    <tr>
+                        <th>Number sorted by popularity</th>
+                        <th>Tag</th>
+                    </tr>
+                    </thead>
+                    <tbody>{tagRows}</tbody>
+                </Table>
 
-            {isLoading ? <p>Loading...</p> : (
-                <List>
-                    {tags.map((tag, index) => (
-                        <List.Item key={index}>{tag}</List.Item>
-                    ))}
-                </List>
-            )}
-        </div>
+            </div>
+        </Container>
     );
 }
 
