@@ -15,8 +15,8 @@ describe('generate API Handler', () => {
     };
 
     beforeEach(() => {
-        (OpenAIStream as jest.Mock).mockReset();
-    },);
+        jest.resetAllMocks();
+    });
 
     const testCases = [
         { provider: 'twitter', systemMessageContains: 'Twitter' },
