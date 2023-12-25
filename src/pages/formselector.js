@@ -24,7 +24,7 @@ import { IconCheck, IconUpload, IconX } from '@tabler/icons-react';
 import axios from 'axios';
 
 export default function Home() {
-    const { data: session } = useSession();
+    const { data: session, status } = useSession()
     const router = useRouter();
 
     const [text, setText] = useState('');
@@ -37,6 +37,14 @@ export default function Home() {
     const [loading, setLoading] = useState(false);
     const [selectedFile, setSelectedFile] = useState(null);
     const [hideResult, setHideResult] = useState(false);
+
+    if (status === "loading") {
+        return <p>Loading...</p>
+    }
+
+    if (status === "unauthenticated") {
+        router.push('/api/auth/signin');
+    }
 
     const askFunction = async (prompt) => {
         setLoading(true);

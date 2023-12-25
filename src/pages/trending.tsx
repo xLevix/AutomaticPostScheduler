@@ -1,12 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import {SegmentedControl, Select, Container, Table, Space} from '@mantine/core';
 import axios from 'axios';
+import {useSession} from "next-auth/react";
+import {useRouter} from "next/router";
 
 export function Trending() {
     const [provider, setProvider] = useState('linkedin');
     const [country, setCountry] = useState('worldwide');
     const [tags, setTags] = useState([]);
     const [providerUrl, setProviderUrl] = useState('');
+    const { data: session, status } = useSession()
+    const router = useRouter();
+
+    useEffect(() => {
+        if (status === 'unauthenticated') {
+            router.push('/api/auth/signin');
+        }
+    }, [status]);
 
     const providerOptions = [
         { label: 'LinkedIn', value: 'linkedin', url: 'https://taplio.com/trending' },

@@ -19,6 +19,7 @@ function HeaderWithSession() {
             return [
                 { label: "Add Post", link: "/formselector" },
                 { label: "Calendar", link: "/calendar" },
+                { label: "Trending Tags", link: "/trending" },
                 {
                     label: (
                         <div style={{display: 'flex', alignItems: 'center'}}>
