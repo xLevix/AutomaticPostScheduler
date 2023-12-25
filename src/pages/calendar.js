@@ -1,57 +1,50 @@
 import { useSession } from "next-auth/react";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import axios from 'axios';
-import {useRouter} from "next/router";
-
-<style jsx>{`
-    .fc-event.deleted-post {
-        text-decoration: line-through !important;
-        color: red !important;
-    }
-    .fc-event {
-        height: 60px !important;
-    }
-`}</style>
-
+import { useRouter } from "next/router";
 
 export default function Calendar() {
-    const { data: session, status } = useSession()
+    const { data: session, status } = useSession();
     const [loading, setLoading] = useState(true);
     const [posts, setPosts] = useState([]);
     const router = useRouter();
 
+    useEffect(() => {
+        if (session) {
+            fetchData();
+        }
+    }, [session]); // Dependency array includes session
+
     if (status === "loading") {
-        return <p>Loading...</p>
+        return <p>Loading...</p>;
     }
 
     if (status === "unauthenticated") {
         router.push('/api/auth/signin');
+        return null;
     }
 
-    const fetchData = async () => {
-        if (session) {
-            const config = {
-                method: 'get',
-                maxBodyLength: Infinity,
-                url: `/api/getMongo?userId=${session.user.id}`,
-                headers: {}
-            };
+    async function fetchData() {
+        const config = {
+            method: 'get',
+            maxBodyLength: Infinity,
+            url: `/api/getMongo?userId=${session.user.id}`,
+            headers: {}
+        };
 
-            try {
-                const response = await axios(config);
-                setLoading(false);
-                setPosts(response.data.data);
-            } catch (error) {
-                console.log(error);
-            }
+        try {
+            const response = await axios(config);
+            setPosts(response.data.data);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
         }
-    };
-
-    fetchData();
+    }
 
     const events = posts.map((post) => ({
         title: post.title,
@@ -61,39 +54,25 @@ export default function Calendar() {
         isDeleted: post.isDeleted || false
     }));
 
-    const eventClassNames = (eventInfo) => {
-        console.log("eventClassNames called");
-    
-        if (eventInfo.event.extendedProps.isDeleted) {
-            console.log("Post is deleted!");
-            return ['deleted-post'];
-        }
-        return [];
-    };
-    
     const eventContent = (eventInfo) => {
-    console.log(eventInfo);
-    let classNames = [];
-    if (eventInfo.event.extendedProps.isDeleted) {
-        classNames.push('deleted-post');
-    }
-
-    return {
-        html: eventInfo.event.title,
-        classNames: classNames
+        let title = eventInfo.event.title;
+        return {
+            html: eventInfo.event.extendedProps.isDeleted ? `<s>${title}</s>` : title
+        };
     };
-};
 
-    
+    const eventDidMount = (info) => {
+        if (info.event.extendedProps.isDeleted) {
+            info.el.classList.add('deleted-post');
+        }
+    };
+
     return (
         <div>
             <style jsx>{`
                 .deleted-post {
                     text-decoration: line-through;
-                }
-
-                .fc-event {
-                    height: 60px !important;
+                    color: red;
                 }
             `}</style>
             {!loading && (
@@ -109,9 +88,10 @@ export default function Calendar() {
                     eventTimeFormat={{
                         hour: 'numeric',
                         minute: '2-digit',
-                        hour12: false 
+                        hour12: false
                     }}
-                    eventClassNames={eventClassNames}
+                    eventContent={eventContent}
+                    eventDidMount={eventDidMount}
                 />
             )}
         </div>
