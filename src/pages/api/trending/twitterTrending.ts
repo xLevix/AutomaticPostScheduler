@@ -3,9 +3,9 @@ import cheerio from 'cheerio';
 import nc from "next-connect";
 import {NextApiRequest, NextApiResponse} from "next";
 import addTagsToDb from "../../../utils/addTagsToDb";
-import { getToken } from "next-auth/jwt"
 
 const getTwitterTrending = async (country: string) => {
+    if (country === 'worldwide') country = '';
     const url = 'https://trends24.in/' + country;
 
     try {
@@ -14,13 +14,18 @@ const getTwitterTrending = async (country: string) => {
         const hashtags = [];
 
         $('.trend-card__list li').each((i, el) => {
-            hashtags.push($(el).text());
+            if (hashtags.length < 20) {
+                hashtags.push($(el).text());
+            } else {
+                return false;
+            }
         });
 
         await addTagsToDb('twitter', country, hashtags);
+        console.log(country, hashtags)
         return hashtags;
     } catch (error) {
-        throw new Error('Error fetching data');
+        throw new Error('Error fetching data: ' + error);
     }
 
 }
@@ -38,11 +43,12 @@ const handler = nc<NextApiRequest, NextApiResponse>()
             res.status(200).json({hashtags});
         }else {
             const countries = ['worldwide', 'united-states', 'poland', 'germany', 'united-kingdom', 'spain', 'turkey', 'russia', 'japan'];
-            for (const country of countries) {
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                await getTwitterTrending(country);
-            }
-            res.status(200).json({success: true});
+            const allHashtags = await Promise.all(countries.map(async (country) => {
+                const hashtags = await getTwitterTrending(country);
+                return { [country]: hashtags };
+            }));
+            const hashtagsByCountry = Object.assign({}, ...allHashtags);
+            res.status(200).json({ hashtags: hashtagsByCountry });
         }
     }
 );
