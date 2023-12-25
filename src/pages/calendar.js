@@ -1,10 +1,11 @@
 import { useSession } from "next-auth/react";
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import axios from 'axios';
+import {useRouter} from "next/router";
 
 <style jsx>{`
     .fc-event.deleted-post {
@@ -18,11 +19,20 @@ import axios from 'axios';
 
 
 export default function Calendar() {
-    const { data: session } = useSession();
+    const { data: session, status } = useSession()
     const [loading, setLoading] = useState(true);
     const [posts, setPosts] = useState([]);
+    const router = useRouter();
 
-    useEffect(() => {
+    if (status === "loading") {
+        return <p>Loading...</p>
+    }
+
+    if (status === "unauthenticated") {
+        router.push('/api/auth/signin');
+    }
+
+    const fetchData = async () => {
         if (session) {
             const config = {
                 method: 'get',
@@ -31,16 +41,17 @@ export default function Calendar() {
                 headers: {}
             };
 
-            axios(config)
-                .then((response) => {
-                    setLoading(false);
-                    setPosts(response.data.data);
-                })
-                .catch((error) => {
-                    console.log(error);
-                });
+            try {
+                const response = await axios(config);
+                setLoading(false);
+                setPosts(response.data.data);
+            } catch (error) {
+                console.log(error);
+            }
         }
-    }, [session]);
+    };
+
+    fetchData();
 
     const events = posts.map((post) => ({
         title: post.title,
