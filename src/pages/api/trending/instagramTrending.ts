@@ -49,7 +49,6 @@ const getInstagramTrending = async (country: string) => {
             }
         });
 
-        await addTagsToDb('instagram', country, hashtags);
         return hashtags;
     } catch (error) {
         throw new Error('Error fetching data');
@@ -66,6 +65,7 @@ const handler = nc<NextApiRequest, NextApiResponse>()
 
         if (country){
             const hashtags = await getInstagramTrending(country);
+            await addTagsToDb('instagram', country, hashtags);
             res.status(200).json({ hashtags });
         }else{
             const countries = ['us', 'pl', 'gb', 'de', 'es', 'ru', 'tr', 'jp'];
@@ -74,6 +74,7 @@ const handler = nc<NextApiRequest, NextApiResponse>()
                 return { [country]: hashtags };
             }));
             const hashtagsByCountry = Object.assign({}, ...allHashtags);
+            await addTagsToDb('instagram', 'all', hashtagsByCountry);
             res.status(200).json({ hashtags: hashtagsByCountry });
         }
     }

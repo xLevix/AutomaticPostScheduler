@@ -5,8 +5,8 @@ import {NextApiRequest, NextApiResponse} from "next";
 import addTagsToDb from "../../../utils/addTagsToDb";
 
 const getTwitterTrending = async (country: string) => {
-    if (country === 'worldwide') country = '';
-    const url = 'https://trends24.in/' + country;
+    let url = 'https://trends24.in/' + country;
+    if (country === 'worldwide') url = 'https://trends24.in/';
 
     try {
         const { data } = await axios.get(url);
@@ -21,8 +21,6 @@ const getTwitterTrending = async (country: string) => {
             }
         });
 
-        await addTagsToDb('twitter', country, hashtags);
-        console.log(country, hashtags)
         return hashtags;
     } catch (error) {
         throw new Error('Error fetching data: ' + error);
@@ -40,6 +38,7 @@ const handler = nc<NextApiRequest, NextApiResponse>()
 
         if (country) {
             const hashtags = await getTwitterTrending(country);
+            await addTagsToDb('twitter', country, hashtags);
             res.status(200).json({hashtags});
         }else {
             const countries = ['worldwide', 'united-states', 'poland', 'germany', 'united-kingdom', 'spain', 'turkey', 'russia', 'japan'];
@@ -48,6 +47,7 @@ const handler = nc<NextApiRequest, NextApiResponse>()
                 return { [country]: hashtags };
             }));
             const hashtagsByCountry = Object.assign({}, ...allHashtags);
+            await addTagsToDb('twitter', 'all', hashtagsByCountry);
             res.status(200).json({ hashtags: hashtagsByCountry });
         }
     }
