@@ -9,8 +9,8 @@ const BadgeCard = ({ postData, onDelete, statsData }) => {
       <Grid>
         <Grid.Col span={10}>
     <Card shadow="sm" padding="lg" radius="md" withBorder >
-      <Card.Section>
-        <Image src={imgUrl} alt={title} objectFit="contain" />
+      <Card.Section style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <Image src={imgUrl} alt={title} objectFit="contain" style={{ maxWidth: '500px' }} />
       </Card.Section>
 
       <Group justify="space-between" mt="md" mb="xs">

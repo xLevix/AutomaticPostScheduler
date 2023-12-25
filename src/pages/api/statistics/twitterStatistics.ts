@@ -36,31 +36,42 @@ import puppeteer from 'puppeteer';
 
 const handler = nc<NextApiRequest, NextApiResponse>()
     .post(async (req, res) => {
-            const { accountId, postId } = req.body;
-            const twitterUrl = 'https://twitter.com/' + accountId + '/status/' + postId;
-            const browser = await puppeteer.launch({ headless: true });
+        const { accountId, postId } = req.body;
+        const twitterUrl = 'https://twitter.com/' + accountId + '/status/' + postId;
+        let browser;
+
+        try {
+            res.status(200);
+            res.setHeader('Content-Type', 'application/json');
+
+            browser = await puppeteer.connect({
+                browserWSEndpoint: `wss://chrome.browserless.io?token=${process.env.BROWSERLESS_TOKEN}`,
+            });
+
             const page = await browser.newPage();
             const cookies = JSON.parse(process.env.TWITTER_COOKIE);
             for (let cookie of cookies) {
                 await page.setCookie(cookie);
             }
             await page.goto(twitterUrl, { waitUntil: 'networkidle2' });
-            try {
-                await new Promise(resolve => setTimeout(resolve, 500));
 
-                const comments = await page.$eval('[aria-label*="Reply"]', (el: HTMLElement) => el.innerText.trim()).catch(() => 'Brak danych');
-                const reposts = await page.$eval('[aria-label*="Repost"]', (el: HTMLElement) => el.innerText.trim()).catch(() => 'Brak danych');
-                const likes = await page.$eval('[aria-label*="Like"]', (el: HTMLElement) => el.innerText.trim()).catch(() => 'Brak danych');
-                const bookmarks = await page.$eval('[aria-label*="Bookmark"]', (el: HTMLElement) => el.innerText.trim()).catch(() => 'Brak danych');
-                const views = await page.$eval('.css-1rynq56.r-bcqeeo.r-qvutc0.r-37j5jr.r-a023e6.r-rjixqe.r-16dba41 span:nth-of-type(1) span:nth-of-type(1)', (el: HTMLElement) => el.innerText.trim()).catch(() => 'Brak danych');
+            const [comments, reposts, likes, bookmarks, views] = await Promise.all([
+                page.$eval('[aria-label*="Reply"]', (el: HTMLElement) => el.innerText.trim()).catch(() => 'Brak danych'),
+                page.$eval('[aria-label*="Repost"]', (el: HTMLElement) => el.innerText.trim()).catch(() => 'Brak danych'),
+                page.$eval('[aria-label*="Like"]', (el: HTMLElement) => el.innerText.trim()).catch(() => 'Brak danych'),
+                page.$eval('[aria-label*="Bookmark"]', (el: HTMLElement) => el.innerText.trim()).catch(() => 'Brak danych'),
+                page.$eval('.css-1rynq56.r-bcqeeo.r-qvutc0.r-37j5jr.r-a023e6.r-rjixqe.r-16dba41 span:nth-of-type(1) span:nth-of-type(1)', (el: HTMLElement) => el.innerText.trim()).catch(() => 'Brak danych')
+            ]);
 
-                res.status(200).json({ likes, comments, reposts, bookmarks, views });
-            } catch (error) {
-                res.status(500).json(error);
-            } finally {
-                await browser.close();
+            res.write(JSON.stringify({ likes, comments, reposts, bookmarks, views }));
+        } catch (error) {
+            res.write(JSON.stringify(error));
+        } finally {
+            if (browser) {
+                await browser.disconnect();
             }
+            res.end();
         }
-    );
+    });
 
 export default handler;
