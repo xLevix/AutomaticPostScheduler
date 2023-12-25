@@ -61,7 +61,6 @@ const getGoogleTrends = (country: string) => {
                 results.default.trendingSearchesDays[0].trendingSearches.forEach((el) => {
                     hashtags.push(el.title.query);
                 });
-                await addTagsToDb('google', country, hashtags);
                 resolve(hashtags);
             }
         });
@@ -78,6 +77,7 @@ const handler = nc<NextApiRequest, NextApiResponse>()
 
         if (country) {
             const hashtags = await getGoogleTrends(country);
+            await addTagsToDb('google', country, hashtags);
             res.status(200).json({ hashtags });
         } else {
             const countries = ['US', 'PL', 'GB', 'DE', 'ES', 'RU', 'TR', 'JP'];
@@ -86,6 +86,7 @@ const handler = nc<NextApiRequest, NextApiResponse>()
                 return { [country]: hashtags };
             }));
             const hashtagsByCountry = Object.assign({}, ...allHashtags);
+            await addTagsToDb('google', 'all', hashtagsByCountry);
             res.status(200).json({ hashtags: hashtagsByCountry });
         }
     });

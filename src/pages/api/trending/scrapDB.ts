@@ -52,10 +52,12 @@ const handler = nc<NextApiRequest, NextApiResponse>()
         const { provider, country } = req.query;
 
         if (provider && country) {
-            const tags = await db.collection("TrendingTags").find({ provider, country }).sort({ date: -1 }).limit(1).toArray();
+            const document = await db.collection("TrendingTags").findOne({ provider });
+            const tags = document.tags[country];
             res.status(200).json({ success: true, data: tags });
-        }else if (provider) {
-            const tags = await db.collection("TrendingTags").find({ provider }).sort({ date: -1 }).limit(1).toArray();
+        } else if (provider) {
+            const document = await db.collection("TrendingTags").findOne({ provider });
+            const tags = document.tags;
             res.status(200).json({ success: true, data: tags });
         } else {
             res.status(400).json({ success: false, message: "Invalid query parameters" });
