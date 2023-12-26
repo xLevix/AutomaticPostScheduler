@@ -21,7 +21,7 @@ export function Trending() {
     const providerOptions = [
         { label: 'LinkedIn', value: 'linkedin', url: 'https://taplio.com/trending' },
         { label: 'Instagram', value: 'instagram', url: 'https://displaypurposes.com/hashtags/rank/best/country' },
-        { label: 'Twitter', value: 'twitter', url: 'https://trends24.in/' },
+        { label: 'Twitter', value: 'twitter', url: 'RapidAPI Twitter Trends' },
         { label: 'Google Trends', value: 'google', url: 'RapidAPI Trendly (Google Trends)' },
     ];
 
