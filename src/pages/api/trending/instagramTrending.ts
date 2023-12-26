@@ -43,7 +43,8 @@ const getInstagramTrending = async (country: string) => {
 
         $('td.tag a').each((i, el) => {
             if (hashtags.length < 20) {
-                hashtags.push($(el).text());
+                const hashtag = $(el).text();
+                hashtags.push(hashtag.substring(1));
             } else {
                 return false;
             }

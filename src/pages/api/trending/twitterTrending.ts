@@ -31,33 +31,47 @@
  */
 
 import axios from 'axios';
-import cheerio from 'cheerio';
 import nc from "next-connect";
 import {NextApiRequest, NextApiResponse} from "next";
 import addTagsToDb from "../../../utils/addTagsToDb";
 
+const countryWoeidMapping = {
+    'worldwide': '1',
+    'united-states': '23424977',
+    'poland': '23424923',
+    'germany': '23424829',
+    'united-kingdom': '23424975',
+    'spain': '23424950',
+    'turkey': '23424969',
+    'russia': '23424936',
+    'japan': '23424856'
+};
+
 const getTwitterTrending = async (country: string) => {
-    let url = 'https://trends24.in/' + country;
-    if (country === 'worldwide') url = 'https://trends24.in/';
+    const encodedParams = new URLSearchParams();
+    const woeid = countryWoeidMapping[country] || countryWoeidMapping['worldwide'];
+    encodedParams.set('woeid', woeid);
+
+    const options = {
+        method: 'POST',
+        url: 'https://twitter-trends5.p.rapidapi.com/twitter/request.php',
+        headers: {
+            'content-type': 'application/x-www-form-urlencoded',
+            'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
+            'X-RapidAPI-Host': 'twitter-trends5.p.rapidapi.com'
+        },
+        data: encodedParams,
+    };
 
     try {
-        const { data } = await axios.get(url);
-        const $ = cheerio.load(data);
-        const hashtags = [];
-
-        $('.trend-card__list li').each((i, el) => {
-            if (hashtags.length < 20) {
-                hashtags.push($(el).text());
-            } else {
-                return false;
-            }
-        });
-
-        return hashtags;
+        const response = await axios.request(options);
+        const trends = response.data.trends;
+        // @ts-ignore
+        const hashtags = Object.values(trends).map(trend => trend.name);
+        return hashtags.slice(0, 20);
     } catch (error) {
         throw new Error('Error fetching data: ' + error);
     }
-
 }
 
 const handler = nc<NextApiRequest, NextApiResponse>()
@@ -71,7 +85,7 @@ const handler = nc<NextApiRequest, NextApiResponse>()
         if (country) {
             const hashtags = await getTwitterTrending(country);
             await addTagsToDb('twitter', country, hashtags);
-            res.status(200).json({hashtags});
+            res.status(200).json({ hashtags: { [country]: hashtags } });
         }else {
             const countries = ['worldwide', 'united-states', 'poland', 'germany', 'united-kingdom', 'spain', 'turkey', 'russia', 'japan'];
             const allHashtags = await Promise.all(countries.map(async (country) => {
