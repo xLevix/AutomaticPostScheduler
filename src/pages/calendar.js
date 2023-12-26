@@ -56,8 +56,9 @@ export default function Calendar() {
 
     const eventContent = (eventInfo) => {
         let title = eventInfo.event.title;
+        let time = eventInfo.event.startStr.split('T')[1].substring(0, 5); // Extracts the time from the startStr
         return {
-            html: eventInfo.event.extendedProps.isDeleted ? `<s>${title}</s>` : title
+            html: eventInfo.event.extendedProps.isDeleted ? `<s>${time} ${title}</s>` : `${time} ${title}`
         };
     };
 
