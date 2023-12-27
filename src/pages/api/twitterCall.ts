@@ -69,7 +69,7 @@ const handler = nc<NextApiRequest, NextApiResponse>()
             .then(async function (response) {
                 const postId = response.data.data.id;
                 const updateResponse = await addPostIdToDb(objectId, postId)
-                res.status(200).json({PostId: +postId, DatabaseUpdate: updateResponse.data});
+                res.status(200).json({PostId: + BigInt(postId).toString(), DatabaseUpdate: updateResponse.data});
             })
             .catch(function (error) {
                 console.log(error);

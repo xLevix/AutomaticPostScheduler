@@ -40,7 +40,6 @@ const handler = nc<NextApiRequest, NextApiResponse>()
         try {
             res.status(200);
             res.setHeader('Content-Type', 'application/json');
-            res.write('Processing...\n');
 
             browser = await puppeteer.connect({
                 browserWSEndpoint: `wss://chrome.browserless.io?token=${process.env.BROWSERLESS_TOKEN}`,
@@ -55,12 +54,12 @@ const handler = nc<NextApiRequest, NextApiResponse>()
             await page.goto(linkedinUrl, { waitUntil: 'networkidle2' });
 
             const [reactions, comments, shares] = await Promise.all([
-                page.$eval('.social-details-social-counts__reactions-count', (el: HTMLElement) => el.innerText.trim()).catch(() => 'Brak danych'),
-                page.$eval('.social-details-social-counts__comments', (el: HTMLElement) => el.innerText.trim()).catch(() => 'Brak danych'),
-                page.$eval('.social-details-social-counts__item--right-aligned', (el: HTMLElement) => el.innerText.trim()).catch(() => 'Brak danych')
+                page.$eval('.social-details-social-counts__reactions-count', (el: HTMLElement) => el.innerText.trim()).catch(() => '0'),
+                page.$eval('.social-details-social-counts__comments', (el: HTMLElement) => el.innerText.trim()).catch(() => '0'),
+                page.$eval('.social-details-social-counts__item--right-aligned', (el: HTMLElement) => el.innerText.trim()).catch(() => '0')
             ]);
 
-            res.write(JSON.stringify({ reactions, comments, shares }));
+            res.write(JSON.stringify({ likes:reactions, comments, shares }));
         } catch (error) {
             res.write(JSON.stringify(error));
         } finally {

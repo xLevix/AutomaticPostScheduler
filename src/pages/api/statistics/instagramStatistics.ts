@@ -2,35 +2,44 @@
  * @swagger
  * /api/statistics/instagramStatistics:
  *   post:
- *     summary: Endpoint to retrieve the likers of a specific Instagram post.
- *     description: This endpoint receives a username, password, and media ID in the request body. It then logs into Instagram using the provided username and password, and retrieves the likers of the post with the provided media ID. The likers are returned in the response.
+ *     summary: Retrieve Instagram post statistics
+ *     description: This endpoint retrieves Instagram post statistics using the ApifyClient. It requires a postId in the request body.
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - postId
  *             properties:
- *               userId:
+ *               postId:
  *                 type: string
- *                 description: The username of the Instagram account.
- *               accessToken:
- *                 type: string
- *                 description: The password of the Instagram account.
- *               mediaId:
- *                 type: string
- *                 description: The ID of the media whose likers are to be retrieved.
+ *                 description: The ID of the Instagram post.
  *     responses:
  *       200:
- *         description: The likers were successfully retrieved.
+ *         description: The Instagram post statistics were successfully retrieved.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 likes:
+ *                   type: number
+ *                   description: The number of likes on the Instagram post.
+ *                 comments:
+ *                   type: number
+ *                   description: The number of comments on the Instagram post.
+ *                 shares:
+ *                   type: string
+ *                   description: The number of shares of the Instagram post.
  *       500:
- *         description: An error occurred and the likers were not retrieved.
+ *         description: No results were found for the provided postId.
  */
 
 import { NextApiRequest, NextApiResponse } from 'next';
 import nc from 'next-connect';
-import {IgApiClient} from "instagram-private-api";
-import {urlSegmentToInstagramId} from "instagram-id-to-url-segment";
+import { ApifyClient } from 'apify-client';
 
 /**
  * Handler for the /api/statistics/instagramStatistics endpoint.
@@ -41,23 +50,30 @@ import {urlSegmentToInstagramId} from "instagram-id-to-url-segment";
 const handler = nc<NextApiRequest, NextApiResponse>()
     .post(async (req, res) => {
 
-        const {userId: username, accessToken: password, mediaId} = req.body;
+        const {postId} = req.body;
 
-        const ig = new IgApiClient();
+        const client = new ApifyClient({
+            token: process.env.APIFY_TOKEN,
+        });
 
-        ig.state.generateDevice(username);
+        const input = {
+            "directUrls": [
+                `https://www.instagram.com/p/${postId}`
+            ],
+            "resultsType": "posts",
+            "resultsLimit": 1,
+            "searchLimit": 1
+        };
 
-        const auth = await ig.account.login(username, password);
+        const run = await client.actor("apify/instagram-scraper").call(input);
 
-        if (JSON.stringify(auth)) {
-            const likers = await ig.media.likers(
-                urlSegmentToInstagramId(mediaId)
-            );
-            res.status(200).json(likers);
-        } else {
-            res.status(500).json("Failed to login");
+        console.log('Results from dataset');
+        const { items } = await client.dataset(run.defaultDatasetId).listItems();
+        if (items.length === 0) {
+            res.status(500).json({ message: "No results found" });
+
         }
-
+        res.status(200).json({ likes: items[0].likesCount, comments: items[0].commentsCount, shares:'--' });
     });
 
 export default handler;

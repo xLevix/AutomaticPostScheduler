@@ -63,7 +63,7 @@ const handler = nc<NextApiRequest, NextApiResponse>()
                 page.$eval('.css-1rynq56.r-bcqeeo.r-qvutc0.r-37j5jr.r-a023e6.r-rjixqe.r-16dba41 span:nth-of-type(1) span:nth-of-type(1)', (el: HTMLElement) => el.innerText.trim()).catch(() => 'Brak danych')
             ]);
 
-            res.write(JSON.stringify({ likes, comments, reposts, bookmarks, views }));
+            res.write(JSON.stringify({ likes, comments, shares:reposts, bookmarks, views }));
         } catch (error) {
             res.write(JSON.stringify(error));
         } finally {

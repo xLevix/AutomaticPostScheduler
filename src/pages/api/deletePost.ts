@@ -58,7 +58,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 
     console.log("Deleting post", messageId);
-    console.log("Deleting post", process.env.QSTASH_TOKEN);
 
     await axios.delete(`https://qstash.upstash.io/v2/messages/${messageId}`, {
       headers: { Authorization: `Bearer ${process.env.QSTASH_TOKEN}` },
