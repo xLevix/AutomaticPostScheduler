@@ -112,7 +112,7 @@ const handler = nc<NextApiRequest, NextApiResponse>()
                 const restliIdHeader = response.headers['x-restli-id'];
                 const postId = restliIdHeader.split(':').pop();
                 const updateResponse = await addPostIdToDb(objectId, postId);
-                res.status(200).json({PostId: +postId, DatabaseUpdate: updateResponse.data});
+                res.status(200).json({PostId: BigInt(postId).toString() , DatabaseUpdate: updateResponse.data});
             })
             .catch(function (error) {
                 console.error('Axios error:', error);

@@ -42,6 +42,7 @@ export async function OpenAIStream(payload) {
         body: JSON.stringify(payload),
     });
 
+
     return new ReadableStream({
         async start(controller) {
             function onParse(event: ParsedEvent | ReconnectInterval) {
@@ -55,18 +56,22 @@ export async function OpenAIStream(payload) {
                         const json = JSON.parse(data);
                         console.log("Received data:", json);
 
-                        const text = json.choices[0].delta.content;
-                        const hasNewLine = (text.match(/\n/) || []).length > 0;
-                        if (counter >= 2 || !hasNewLine) {
-                            const queue = encoder.encode(text);
-                            controller.enqueue(queue);
-                            counter++;
+                        if (json.choices[0].delta.content) {
+                            const text = json.choices[0].delta.content;
+                            const hasNewLine = !!text.match(/\n/);
+
+                            if (counter >= 2 || !hasNewLine) {
+                                const queue = encoder.encode(text);
+                                controller.enqueue(queue);
+                                counter++;
+                            }
                         }
                     } catch (e) {
                         controller.error(e);
                     }
                 }
             }
+
             const parser = createParser(onParse);
 
             for await (const chunk of res.body as any) {

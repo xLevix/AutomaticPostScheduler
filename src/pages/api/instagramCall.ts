@@ -67,7 +67,7 @@ const handler = nc<NextApiRequest, NextApiResponse>()
             });
 
             if (JSON.stringify(publishResult)) {
-                const postId = publishResult.upload_id;
+                const postId = publishResult.media.code;
                 const updateResponse = await addPostIdToDb(objectId, postId);
                 res.status(200).json({PostId: + postId, DatabaseUpdate: updateResponse.data});
             } else {

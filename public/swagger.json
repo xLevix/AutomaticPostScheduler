@@ -322,26 +322,21 @@
     },
     "/api/statistics/instagramStatistics": {
       "post": {
-        "summary": "Endpoint to retrieve the likers of a specific Instagram post.",
-        "description": "This endpoint receives a username, password, and media ID in the request body. It then logs into Instagram using the provided username and password, and retrieves the likers of the post with the provided media ID. The likers are returned in the response.",
+        "summary": "Retrieve Instagram post statistics",
+        "description": "This endpoint retrieves Instagram post statistics using the ApifyClient. It requires a postId in the request body.",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
+                "required": [
+                  "postId"
+                ],
                 "properties": {
-                  "userId": {
+                  "postId": {
                     "type": "string",
-                    "description": "The username of the Instagram account."
-                  },
-                  "accessToken": {
-                    "type": "string",
-                    "description": "The password of the Instagram account."
-                  },
-                  "mediaId": {
-                    "type": "string",
-                    "description": "The ID of the media whose likers are to be retrieved."
+                    "description": "The ID of the Instagram post."
                   }
                 }
               }
@@ -350,10 +345,31 @@
         },
         "responses": {
           "200": {
-            "description": "The likers were successfully retrieved."
+            "description": "The Instagram post statistics were successfully retrieved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "likes": {
+                      "type": "number",
+                      "description": "The number of likes on the Instagram post."
+                    },
+                    "comments": {
+                      "type": "number",
+                      "description": "The number of comments on the Instagram post."
+                    },
+                    "shares": {
+                      "type": "string",
+                      "description": "The number of shares of the Instagram post."
+                    }
+                  }
+                }
+              }
+            }
           },
           "500": {
-            "description": "An error occurred and the likers were not retrieved."
+            "description": "No results were found for the provided postId."
           }
         }
       }

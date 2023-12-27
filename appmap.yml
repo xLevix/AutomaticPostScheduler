@@ -1,0 +1,11 @@
+name: AutomaticPostScheduler
+packages:
+  - path: bin
+  - path: lib
+  - path: src\components
+  - path: src\pages
+  - path: src\tests
+  - path: src\types
+  - path: src\utils
+language: javascript
+appmap_dir: tmp/appmap
