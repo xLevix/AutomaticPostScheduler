@@ -59,7 +59,6 @@
     "twitter-api-v2": "^1.15.2"
   },
   "devDependencies": {
-    "@appland/appmap-agent-js": "^14.2.0",
     "@babel/preset-env": "^7.23.5",
     "@babel/preset-typescript": "^7.23.3",
     "@types/jest": "^29.5.11",
