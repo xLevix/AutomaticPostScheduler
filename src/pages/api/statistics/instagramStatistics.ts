@@ -31,7 +31,7 @@
  *                   type: number
  *                   description: The number of comments on the Instagram post.
  *                 shares:
- *                   type: string
+ *                   type: number
  *                   description: The number of shares of the Instagram post.
  *       500:
  *         description: No results were found for the provided postId.
