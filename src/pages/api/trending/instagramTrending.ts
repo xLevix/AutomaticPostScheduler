@@ -2,23 +2,31 @@
  * @swagger
  * /api/trending/instagramTrending:
  *   post:
- *     summary: Endpoint to retrieve trending hashtags from Instagram.
- *     description: This endpoint receives a country in the request body. It then retrieves the trending hashtags for Instagram in the provided country. If no country is provided, it retrieves the trending hashtags for a list of default countries. The hashtags are returned in the response.
- *     requestBody:
- *       required: false
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               country:
- *                 type: string
- *                 description: The country for which the trending hashtags are to be retrieved.
+ *     summary: Retrieve trending hashtags from Instagram for a specific country or all countries.
+ *     description: This endpoint retrieves trending hashtags from Instagram for a specific country or all countries. It uses the Display Purposes website to scrape the data. The country is passed in the request body. If no country is specified, it retrieves data for all countries.
+ *     parameters:
+ *       - in: body
+ *         name: country
+ *         schema:
+ *           type: string
+ *         description: The country for which the trending hashtags are to be retrieved.
+ *       - in: body
+ *         name: token
+ *         schema:
+ *           type: string
+ *         description: The token to authorize the request.
  *     responses:
  *       200:
- *         description: The hashtags were successfully retrieved.
- *       500:
- *         description: An error occurred and the hashtags were not retrieved.
+ *         description: A successful response returns the trending hashtags.
+ *       401:
+ *         description: Unauthorized. The token is missing or incorrect.
+ */
+
+/**
+ * Function to get trending hashtags from Instagram for a specific country.
+ * @param {string} country - The country for which the trending hashtags are to be retrieved.
+ * @returns {Promise<string[]>} - A promise that resolves to an array of trending hashtags.
+ * @throws {Error} - Throws an error if there is a problem fetching the data.
  */
 
 import axios from 'axios';
