@@ -62,7 +62,7 @@ const handler = nc<NextApiRequest, NextApiResponse>()
             headers: {
                 'X-Restli-Protocol-Version': '2.0.0',
                 'Content-Type': 'application/json',
-                'LinkedIn-Version': '202301',
+                'LinkedIn-Version': '202304',
                 'Authorization': `Bearer ${accessToken}`,
             },
             data : data
