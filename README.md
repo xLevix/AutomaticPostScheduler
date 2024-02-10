@@ -1,4 +1,4 @@
-I am currently working on an engineering thesis:
+My engineering thesis:
 
 Web application to automatic generation and scheduling of posts published in social media based on artificial intelligence-assisted tools like ChatGPT.
 
